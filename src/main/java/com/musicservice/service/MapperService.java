@@ -8,8 +8,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface MapperService {
-    User sourceToDestination(UserDto source);
-    UserDto destinationToSource(User destination);
+    User userDtoToUser(UserDto source);
+    UserDto userToUserDto(User destination);
 
     List<UserDto> usersToUserDtos(List<User> users);
     List<User> userDtosToUsers(List<UserDto> userDtos);

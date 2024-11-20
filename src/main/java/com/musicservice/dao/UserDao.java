@@ -26,14 +26,14 @@ public class UserDao {
     }
 
     public void addUser(User user) {
-        jdbcTemplate.update("INSERT INTO Person VALUES(1, ?)", user.getName());
+        jdbcTemplate.update("INSERT INTO public.user (name) VALUES(?)", user.getName());
     }
 
-    public void update(int id, User updatedPerson) {
-        jdbcTemplate.update("UPDATE Person SET name=? WHERE id=?", updatedPerson.getName(), id);
+    public void updateUser(int id, User updatedPerson) {
+        jdbcTemplate.update("UPDATE public.user SET name=? WHERE id=?", updatedPerson.getName(), id);
     }
 
-    public void delete(int id) {
-        jdbcTemplate.update("DELETE FROM Person WHERE id=?", id);
+    public void deleteUser(int id) {
+        jdbcTemplate.update("DELETE FROM public.user WHERE id=?", id);
     }
 }

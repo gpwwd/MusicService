@@ -8,7 +8,6 @@ import com.musicservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -32,13 +31,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(int id) {
         User user = userDao.getUserById(id);
-        return mapperService.destinationToSource(user);
+        return mapperService.userToUserDto(user);
     }
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        User user = mapperService.sourceToDestination(userDto);
+        User user = mapperService.userDtoToUser(userDto);
         userDao.addUser(user);
         return userDto;
+    }
+
+    @Override
+    public UserDto updateUser(UserDto userDto) {
+        User user = mapperService.userDtoToUser(userDto);
+        userDao.updateUser(user.getId(), user);
+        return userDto;
+    }
+
+    @Override
+    public void deleteUser(int id) {
+        userDao.deleteUser(id);
     }
 }

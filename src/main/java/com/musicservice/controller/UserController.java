@@ -22,14 +22,8 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/api")
-    public void test() {
-        System.out.println(userService.getUsers());
-    }
-
     @GetMapping()
     public ResponseEntity<?> getUsers() {
-        System.out.println(userService.getUsers());
         try {
             List<UserDto> users = userService.getUsers();
             return new ResponseEntity<>(users, HttpStatus.OK);
@@ -40,7 +34,6 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable("id") int id) {
-        System.out.println(userService.getUsers());
         try {
             UserDto user = userService.getUserById(id);
             return new ResponseEntity<>(user, HttpStatus.OK);
@@ -51,13 +44,31 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<?> postUser(@RequestBody UserDto userDto) {
-        System.out.println(userDto);
         try {
             UserDto user = userService.addUser(userDto);
             return new ResponseEntity<>(user, HttpStatus.CREATED);
         } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
+    @PutMapping()
+    public ResponseEntity<?> putUser(@RequestBody UserDto userDto) {
+        try {
+            UserDto user = userService.updateUser(userDto);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable int id) {
+        try {
+            userService.deleteUser(id);
+            return new ResponseEntity<>(id, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }
