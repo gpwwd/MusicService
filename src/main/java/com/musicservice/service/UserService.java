@@ -6,5 +6,6 @@ import com.musicservice.model.User;
 import java.util.List;
 
 public interface UserService {
-    public List<UserDto> getUsers();
+    List<UserDto> getUsers();
+    UserDto addUser(UserDto userDto);
 }

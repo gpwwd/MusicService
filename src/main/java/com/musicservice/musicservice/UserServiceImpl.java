@@ -1,5 +1,6 @@
 package com.musicservice.musicservice;
 
+import com.musicservice.dao.UserDao;
 import com.musicservice.dto.UserDto;
 import com.musicservice.model.User;
 import com.musicservice.service.MapperService;
@@ -12,21 +13,26 @@ import java.util.List;
 
 @Component
 public class UserServiceImpl implements UserService {
+
     private MapperService mapperService;
+    private UserDao userDao;
 
     @Autowired
-    public UserServiceImpl(MapperService mapperService) {
+    public UserServiceImpl(MapperService mapperService, UserDao userDao) {
         this.mapperService = mapperService;
+        this.userDao = userDao;
     }
 
     @Override
     public List<UserDto> getUsers() {
-        List<User> users = new ArrayList<>();
-        User user = new User();
-        user.setId(3);
-        user.setName("Jack");
-        users.add(user);
-        var usersdto = mapperService.usersToUserDtos(users);
-        return usersdto;
+        List<User> users = userDao.getUsers();
+        return mapperService.usersToUserDtos(users);
+    }
+
+    @Override
+    public UserDto addUser(UserDto userDto) {
+        User user = mapperService.sourceToDestination(userDto);
+        userDao.addUser(user);
+        return userDto;
     }
 }
