@@ -30,6 +30,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto getUserById(int id) {
+        User user = userDao.getUserById(id);
+        return mapperService.destinationToSource(user);
+    }
+
+    @Override
     public UserDto addUser(UserDto userDto) {
         User user = mapperService.sourceToDestination(userDto);
         userDao.addUser(user);

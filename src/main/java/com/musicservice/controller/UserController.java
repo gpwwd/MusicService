@@ -38,6 +38,17 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable("id") int id) {
+        System.out.println(userService.getUsers());
+        try {
+            UserDto user = userService.getUserById(id);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping()
     public ResponseEntity<?> postUser(@RequestBody UserDto userDto) {
         System.out.println(userDto);
@@ -45,7 +56,7 @@ public class UserController {
             UserDto user = userService.addUser(userDto);
             return new ResponseEntity<>(user, HttpStatus.CREATED);
         } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
     }
 
