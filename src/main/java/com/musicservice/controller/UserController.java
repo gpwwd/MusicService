@@ -77,4 +77,10 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PostMapping("/{userId}/favourite-songs/{songId}")
+    public ResponseEntity<?> addFavouriteSong(@PathVariable int userId, @PathVariable int songId) {
+        userService.addFavouriteSong(userId, songId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

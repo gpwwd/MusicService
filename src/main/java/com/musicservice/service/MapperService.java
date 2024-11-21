@@ -1,6 +1,8 @@
 package com.musicservice.service;
 
+import com.musicservice.dto.SongDto;
 import com.musicservice.dto.UserDto;
+import com.musicservice.model.Song;
 import com.musicservice.model.User;
 import org.mapstruct.Mapper;
 
@@ -13,5 +15,11 @@ public interface MapperService {
 
     List<UserDto> usersToUserDtos(List<User> users);
     List<User> userDtosToUsers(List<UserDto> userDtos);
+
+    Song songDtoToSong(SongDto source);
+    SongDto songToSongDto(Song destination);
+
+    List<SongDto> songsToSongDtos(List<Song> songs);
+    List<Song> songDtosToSongs(List<SongDto> songDtos);
 }
     
