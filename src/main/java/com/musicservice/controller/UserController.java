@@ -1,7 +1,7 @@
 package com.musicservice.controller;
 
 import com.musicservice.dto.UserDto;
-import com.musicservice.model.User;
+import com.musicservice.exception.UserNotFoundException;
 import com.musicservice.musicservice.UserServiceImpl;
 import com.musicservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +34,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable("id") int id) {
-        try {
-            UserDto user = userService.getUserById(id);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        UserDto user = userService.getUserById(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping()
@@ -56,6 +52,16 @@ public class UserController {
     public ResponseEntity<?> putUser(@RequestBody UserDto userDto) {
         try {
             UserDto user = userService.updateUser(userDto);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> putUser(@PathVariable int id, @RequestBody UserDto userDto) {
+        try {
+            UserDto user = userService.updateUser(id, userDto);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

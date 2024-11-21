@@ -14,3 +14,4 @@ public interface MapperService {
     List<UserDto> usersToUserDtos(List<User> users);
     List<User> userDtosToUsers(List<UserDto> userDtos);
 }
+    
