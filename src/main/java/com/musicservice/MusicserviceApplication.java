@@ -3,7 +3,7 @@ package com.musicservice;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver;
+import redis.clients.jedis.UnifiedJedis;
 
 @SpringBootApplication
 public class MusicserviceApplication {

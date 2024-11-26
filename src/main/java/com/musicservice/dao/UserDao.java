@@ -21,18 +21,18 @@ public class UserDao {
     }
 
     public boolean userExists(int userId) {
-        String sql = "SELECT COUNT(*) FROM public.user WHERE id = ?";
+        String sql = "SELECT COUNT(*) FROM users WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
         return count != null && count > 0;
     }
 
     public List<User> getUsers() {
-        return jdbcTemplate.query("SELECT * FROM public.user", new BeanPropertyRowMapper<>(User.class));
+        return jdbcTemplate.query("SELECT * FROM users", new BeanPropertyRowMapper<>(User.class));
     }
 
     public User getUserById(int id) throws UserNotFoundException {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM public.user WHERE id = ?",
+            return jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?",
                     new BeanPropertyRowMapper<>(User.class),
                     id);
         } catch (EmptyResultDataAccessException e) {
@@ -41,25 +41,25 @@ public class UserDao {
     }
 
     public void addUser(User user) {
-        jdbcTemplate.update("INSERT INTO public.user (name) VALUES(?)", user.getName());
+        jdbcTemplate.update("INSERT INTO users (name) VALUES(?)", user.getName());
     }
 
     public void updateUser(int id, User updatedUser) throws UserNotFoundException {
-        int rowsAffected = jdbcTemplate.update("UPDATE public.user SET name=? WHERE id=?", updatedUser.getName(), id);
+        int rowsAffected = jdbcTemplate.update("UPDATE users SET name=? WHERE id=?", updatedUser.getName(), id);
         if (rowsAffected == 0) {
             throw new UserNotFoundException(id);
         }
     }
 
     public void deleteUser(int id) throws UserNotFoundException {
-        int rowsAffected = jdbcTemplate.update("DELETE FROM public.user WHERE id=?", id);
+        int rowsAffected = jdbcTemplate.update("DELETE FROM users WHERE id=?", id);
         if (rowsAffected == 0) {
             throw new UserNotFoundException(id);
         }
     }
 
     public void addFavouriteSong(int userId, int songId) {
-        String sql = "INSERT INTO user_favourite_songs (user_id, song_id) VALUES (?, ?)";
+        String sql = "INSERT INTO user_songs (user_id, song_id) VALUES (?, ?)";
         int rowsAffected = jdbcTemplate.update(sql, userId, songId);
         if (rowsAffected == 0) {
             throw new EmptyResultDataAccessException(1);
