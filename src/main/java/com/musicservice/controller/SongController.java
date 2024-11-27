@@ -1,5 +1,6 @@
 package com.musicservice.controller;
 
+import com.musicservice.dto.CommentDto;
 import com.musicservice.dto.SongDto;
 import com.musicservice.model.Song;
 import com.musicservice.musicservice.SongServiceImpl;
@@ -44,6 +45,18 @@ public class SongController {
     public ResponseEntity<?> getSongById(@PathVariable("id") int id) {
         SongDto song = songService.getSongById(id);
         return new ResponseEntity<>(song, HttpStatus.OK);
+    }
+
+    @GetMapping("/with-comments/{id}")
+    public ResponseEntity<?> getSongWithCommentsById(@PathVariable("id") int id) {
+        SongDto song = songService.getSongWithCommentsById(id);
+        return new ResponseEntity<>(song, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<?> getCommentsBySongId(@PathVariable("id") int id) {
+        List<CommentDto> comments = songService.getCommentsBySongId(id);
+        return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 
     @PostMapping()

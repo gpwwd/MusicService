@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +27,7 @@ public class RedisSongRepository {
     @PostConstruct
     private void init(){
         valueOperations = redisTemplate.opsForValue();
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Song.class));
     }
 
     public void add(final Song song) {
