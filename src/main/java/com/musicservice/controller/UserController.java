@@ -5,6 +5,7 @@ import com.musicservice.exception.UserNotFoundException;
 import com.musicservice.musicservice.UserServiceImpl;
 import com.musicservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +25,8 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<?> getUsers() {
-        try {
-            List<UserDto> users = userService.getUsers();
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        List<UserDto> users = userService.getUsers();
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -40,42 +37,26 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<?> postUser(@RequestBody UserDto userDto) {
-        try {
-            UserDto user = userService.addUser(userDto);
-            return new ResponseEntity<>(user, HttpStatus.CREATED);
-        } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        UserDto user = userService.addUser(userDto);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @PutMapping()
     public ResponseEntity<?> putUser(@RequestBody UserDto userDto) {
-        try {
-            UserDto user = userService.updateUser(userDto);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        UserDto user = userService.updateUser(userDto);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> putUser(@PathVariable int id, @RequestBody UserDto userDto) {
-        try {
-            UserDto user = userService.updateUser(id, userDto);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        UserDto user = userService.updateUser(id, userDto);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable int id) {
-        try {
-            userService.deleteUser(id);
-            return new ResponseEntity<>(id, HttpStatus.OK);
-        } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        userService.deleteUser(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
     @PostMapping("/{userId}/favourite-songs/{songId}")

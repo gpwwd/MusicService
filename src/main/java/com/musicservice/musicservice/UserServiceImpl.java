@@ -9,6 +9,8 @@ import com.musicservice.model.User;
 import com.musicservice.service.MapperService;
 import com.musicservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +37,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#id")
     public UserDto getUserById(int id) {
         User user = userDao.getUserById(id);
         return mapperService.userToUserDto(user);
@@ -48,6 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users", key = "#userDto.id")
     public UserDto updateUser(UserDto userDto) {
         User user = mapperService.userDtoToUser(userDto);
         userDao.updateUser(user.getId(), user);
@@ -55,6 +59,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users", key = "#id")
     public UserDto updateUser(int id, UserDto userDto) {
         User user = mapperService.userDtoToUser(userDto);
         userDao.updateUser(id, user);
@@ -62,6 +67,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users", key = "#id")
     public void deleteUser(int id) {
         userDao.deleteUser(id);
     }

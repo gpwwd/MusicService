@@ -1,10 +1,15 @@
 package com.musicservice.dto;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.redis.core.RedisHash;
+
+import java.io.Serializable;
 
 @Setter @Getter
-public class UserDto {
+@RedisHash
+public class UserDto implements Serializable {
 
     private int id;
 

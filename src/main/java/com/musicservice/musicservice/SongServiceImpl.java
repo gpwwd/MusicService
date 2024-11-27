@@ -9,6 +9,7 @@ import com.musicservice.repository.RedisSongRepository;
 import com.musicservice.service.MapperService;
 import com.musicservice.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

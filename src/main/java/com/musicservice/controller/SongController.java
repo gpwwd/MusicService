@@ -5,6 +5,7 @@ import com.musicservice.model.Song;
 import com.musicservice.musicservice.SongServiceImpl;
 import com.musicservice.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
