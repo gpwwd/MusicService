@@ -1,15 +1,19 @@
 package com.musicservice.controller;
 
 import com.musicservice.dto.UserDto;
+import com.musicservice.exception.CustomValidationException;
 import com.musicservice.exception.UserNotFoundException;
 import com.musicservice.musicservice.UserServiceImpl;
 import com.musicservice.service.UserService;
 import com.musicservice.util.UserValidator;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,8 +44,11 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> postUser(@RequestBody UserDto userDto, BindingResult bindingResult) {
+    public ResponseEntity<?> postUser(@Valid @RequestBody UserDto userDto, BindingResult bindingResult) {
         userValidator.validate(userDto, bindingResult);
+        if (bindingResult.hasErrors()) {
+            throw new CustomValidationException(bindingResult);
+        }
 
         UserDto user = userService.addUser(userDto);
         return new ResponseEntity<>(user, HttpStatus.CREATED);

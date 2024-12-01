@@ -31,7 +31,7 @@ public class UserValidator implements Validator {
         UserDto userDto = (UserDto) target;
         User user = userMapperService.userDtoToUser(userDto);
         if(userDao.userExists(user.getEmail())){
-            errors.rejectValue("email", "This email address is already in use");
+            errors.rejectValue("email", "user.email.taken", "This email address is already in use");
         }
     }
 }
