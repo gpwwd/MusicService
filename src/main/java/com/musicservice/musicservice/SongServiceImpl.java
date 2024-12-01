@@ -13,6 +13,7 @@ import com.musicservice.service.CommentMapperService;
 import com.musicservice.service.MapperService;
 import com.musicservice.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class SongServiceImpl implements SongService {
 
     private final MapperService mapperService;
+    @Qualifier("customCommentMapperServiceImpl")
     private final CommentMapperService commentMapperService;
     private final SongDao songDao;
     private final RedisSongRepository redisSongRepository;

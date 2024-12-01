@@ -26,6 +26,12 @@ public class UserDao {
         return count != null && count > 0;
     }
 
+    public boolean userExists(String email) {
+        String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
+        return count != null && count > 0;
+    }
+
     public List<User> getUsers() {
         return jdbcTemplate.query("SELECT * FROM users", new BeanPropertyRowMapper<>(User.class));
     }
@@ -41,11 +47,11 @@ public class UserDao {
     }
 
     public void addUser(User user) {
-        jdbcTemplate.update("INSERT INTO users (name) VALUES(?)", user.getName());
+        jdbcTemplate.update("INSERT INTO users (name, email) VALUES(?, ?)", user.getName(), user.getEmail());
     }
 
     public void updateUser(int id, User updatedUser) throws UserNotFoundException {
-        int rowsAffected = jdbcTemplate.update("UPDATE users SET name=? WHERE id=?", updatedUser.getName(), id);
+        int rowsAffected = jdbcTemplate.update("UPDATE users SET name=?, email=? WHERE id=?", updatedUser.getName(), updatedUser.getEmail(), id);
         if (rowsAffected == 0) {
             throw new UserNotFoundException(id);
         }

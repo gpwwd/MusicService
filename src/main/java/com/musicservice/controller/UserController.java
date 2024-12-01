@@ -4,10 +4,12 @@ import com.musicservice.dto.UserDto;
 import com.musicservice.exception.UserNotFoundException;
 import com.musicservice.musicservice.UserServiceImpl;
 import com.musicservice.service.UserService;
+import com.musicservice.util.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,11 +18,13 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
+    private final UserValidator userValidator;
 
     @Autowired
-    public UserController(UserServiceImpl userService) {
+    public UserController(UserServiceImpl userService, UserValidator userValidator) {
         this.userService = userService;
+        this.userValidator = userValidator;
     }
 
     @GetMapping()
@@ -36,7 +40,9 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> postUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> postUser(@RequestBody UserDto userDto, BindingResult bindingResult) {
+        userValidator.validate(userDto, bindingResult);
+
         UserDto user = userService.addUser(userDto);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }

@@ -7,6 +7,7 @@ import com.musicservice.exception.SongNotFoundException;
 import com.musicservice.exception.UserNotFoundException;
 import com.musicservice.model.User;
 import com.musicservice.service.MapperService;
+import com.musicservice.service.UserMapperService;
 import com.musicservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,33 +20,36 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private MapperService mapperService;
-    private UserDao userDao;
-    private SongDao songDao;
+    private final MapperService mapperService;
+    private final UserMapperService userMapperService;
+    private final UserDao userDao;
+    private final SongDao songDao;
 
     @Autowired
-    public UserServiceImpl(MapperService mapperService, UserDao userDao, SongDao songDao) {
+    public UserServiceImpl(MapperService mapperService, UserDao userDao, SongDao songDao,
+        UserMapperService userMapperService) {
         this.mapperService = mapperService;
         this.userDao = userDao;
         this.songDao = songDao;
+        this.userMapperService = userMapperService;
     }
 
     @Override
     public List<UserDto> getUsers() {
         List<User> users = userDao.getUsers();
-        return mapperService.usersToUserDtos(users);
+        return userMapperService.usersToUserDtos(users);
     }
 
     @Override
     @Cacheable(value = "users", key = "#id")
     public UserDto getUserById(int id) {
         User user = userDao.getUserById(id);
-        return mapperService.userToUserDto(user);
+        return userMapperService.userToUserDto(user);
     }
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        User user = mapperService.userDtoToUser(userDto);
+        User user = userMapperService.userDtoToUser(userDto);
         userDao.addUser(user);
         return userDto;
     }
@@ -53,7 +57,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @CacheEvict(value = "users", key = "#userDto.id")
     public UserDto updateUser(UserDto userDto) {
-        User user = mapperService.userDtoToUser(userDto);
+        User user = userMapperService.userDtoToUser(userDto);
         userDao.updateUser(user.getId(), user);
         return userDto;
     }
@@ -61,7 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @CacheEvict(value = "users", key = "#id")
     public UserDto updateUser(int id, UserDto userDto) {
-        User user = mapperService.userDtoToUser(userDto);
+        User user = userMapperService.userDtoToUser(userDto);
         userDao.updateUser(id, user);
         return userDto;
     }

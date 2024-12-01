@@ -14,5 +14,6 @@ public class User implements Serializable {
     @Id
     private int id;
     private String name;
+    private String email;
     private List<Song> favouriteSongs;
 }
