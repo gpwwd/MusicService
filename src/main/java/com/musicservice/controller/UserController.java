@@ -1,8 +1,10 @@
 package com.musicservice.controller;
 
 import com.musicservice.dto.UserDto;
+import com.musicservice.dto.UserDtoWithSongs;
 import com.musicservice.exception.CustomValidationException;
 import com.musicservice.exception.UserNotFoundException;
+import com.musicservice.model.User;
 import com.musicservice.musicservice.UserServiceImpl;
 import com.musicservice.service.UserService;
 import com.musicservice.util.UserValidator;
@@ -40,6 +42,12 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable("id") int id) {
         UserDto user = userService.getUserById(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/favourite-songs")
+    public ResponseEntity<?> getUserByIdWithSongs(@PathVariable int userId) {
+        UserDtoWithSongs user = userService.getUserWithFavouriteSong(userId);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 

@@ -3,6 +3,7 @@ package com.musicservice.musicservice;
 import com.musicservice.dao.SongDao;
 import com.musicservice.dao.UserDao;
 import com.musicservice.dto.UserDto;
+import com.musicservice.dto.UserDtoWithSongs;
 import com.musicservice.exception.SongNotFoundException;
 import com.musicservice.exception.UserNotFoundException;
 import com.musicservice.model.User;
@@ -77,8 +78,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDtoWithSongs getUserWithFavouriteSong(int userId) {
+        User user = userDao.getUserWithFavouriteSong(userId);
+        UserDtoWithSongs userDto = userMapperService.userToUserDtoWithSongs(user);
+        return userDto;
+    }
+
+    @Override
     public void addFavouriteSong(int userId, int songId) {
-        //обработать ситуацию, когда песня у пользователя уже существует
         if (!userDao.userExists(userId)) {
             throw new UserNotFoundException(userId);
         }
