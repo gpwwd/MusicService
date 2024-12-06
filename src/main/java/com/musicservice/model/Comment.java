@@ -1,5 +1,6 @@
 package com.musicservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,14 @@ import java.io.Serializable;
 @Entity
 @Table(name="comments")
 public class Comment implements Serializable {
+    public Comment() {
+    }
+
+    public Comment(Integer id, String comment, int rating) {
+        this.id = id;
+        this.comment = comment;
+        this.rating = rating;
+    }
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -23,7 +32,7 @@ public class Comment implements Serializable {
     @Column(name="rating")
     private int rating;
 
-    @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="song_id", referencedColumnName="id", nullable=false)
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="song_id", referencedColumnName="id", nullable=true)
     private Song song;//owner-side
 }

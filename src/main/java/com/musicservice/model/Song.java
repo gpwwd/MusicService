@@ -25,6 +25,6 @@ public class Song implements Serializable {
             inverseJoinColumns= @JoinColumn(name="user_id", referencedColumnName="id") )
     List<User> users;
 
-    @OneToMany(mappedBy="song")//owner
+    @OneToMany(mappedBy="song", fetch = FetchType.LAZY)
     private List<Comment> comments;
 }
