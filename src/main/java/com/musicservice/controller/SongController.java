@@ -5,13 +5,17 @@ import com.musicservice.dto.SongDto;
 import com.musicservice.model.Song;
 import com.musicservice.musicservice.SongServiceImpl;
 import com.musicservice.service.SongService;
+import com.musicservice.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +24,12 @@ import java.util.Map;
 public class SongController {
     private SongService songService;
     private RedisTemplate<String, String> redisTemplate;
+    private StorageService storageService;
 
     @Autowired
-    public SongController(SongServiceImpl songService, RedisTemplate<String, String> redisTemplate) {
+    public SongController(SongServiceImpl songService, RedisTemplate<String, String> redisTemplate,
+                          StorageService storageService) {
+        this.storageService = storageService;
         this.songService = songService;
         this.redisTemplate = redisTemplate;
     }
@@ -81,5 +88,33 @@ public class SongController {
     public ResponseEntity<?> deleteSong(@PathVariable int id) {
         songService.deleteSong(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
+    @GetMapping("/check-bucket")
+    public boolean CheckBucket() {
+        try{
+            String currentDirectory = Paths.get("").toAbsolutePath().toString();
+            System.out.println("Текущая рабочая директория: " + currentDirectory);
+            return storageService.bucketExists("jopa-bucket");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @PostMapping("/upload")
+    public String upload(@RequestParam("file") MultipartFile file) {
+        try {
+            //file name
+            String fileName = file.getOriginalFilename();
+//            String newFileName = System.currentTimeMillis() + "." + StringUtils.substringAfterLast(fileName, ".");
+            //type
+            String contentType = file.getContentType();
+            InputStream inputStream = file.getInputStream();
+            storageService.uploadFile("covers-bucket", fileName, inputStream, contentType);
+            return "upload success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "upload fail";
+        }
     }
 }
