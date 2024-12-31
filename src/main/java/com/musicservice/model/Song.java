@@ -1,5 +1,7 @@
 package com.musicservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.redis.core.RedisHash;
@@ -8,7 +10,6 @@ import java.io.Serializable;
 import java.util.List;
 
 @Getter @Setter
-@RedisHash
 @Entity
 @Table(name="songs")
 public class Song implements Serializable {
@@ -27,4 +28,8 @@ public class Song implements Serializable {
 
     @OneToMany(mappedBy="song", fetch = FetchType.LAZY)
     private List<Comment> comments;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_info_id", referencedColumnName = "id")
+    private ImageInfo imageInfo;
 }

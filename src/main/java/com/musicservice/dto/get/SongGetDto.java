@@ -1,10 +1,10 @@
-package com.musicservice.dto;
+package com.musicservice.dto.get;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class SongDtoWithNoComments {
+public class SongGetDto {
     private int id;
     private String title;
 }

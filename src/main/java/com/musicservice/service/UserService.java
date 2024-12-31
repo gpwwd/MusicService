@@ -1,19 +1,17 @@
 package com.musicservice.service;
 
-import com.musicservice.dto.UserDto;
-import com.musicservice.dto.UserDtoWithSongs;
-import com.musicservice.model.User;
-import org.springframework.http.ResponseEntity;
+import com.musicservice.dto.get.SongGetDto;
+import com.musicservice.dto.get.UserGetDto;
+import com.musicservice.dto.post.UserPostDto;
 
 import java.util.List;
 
 public interface UserService {
-    List<UserDto> getUsers();
-    UserDto getUserById(int id);
-    UserDto addUser(UserDto userDto);
-    UserDto updateUser(UserDto userDto);
-    UserDto updateUser(int id, UserDto userDto);
+    List<UserGetDto> getAll();
+    UserGetDto getById(int id);
+    List<SongGetDto> getFavouriteSongsByUserId(int userId);
+    UserGetDto save(UserPostDto userDto);
+    UserGetDto updateUser(UserPostDto userDto, int id);
     void deleteUser(int id);
-    UserDtoWithSongs getUserWithFavouriteSong(int userId);
     void addFavouriteSong(int userId, int songId);
 }

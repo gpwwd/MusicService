@@ -1,97 +1,121 @@
 package com.musicservice.musicservice;
 
-import com.musicservice.dao.SongDao;
-import com.musicservice.dao.UserDao;
-import com.musicservice.dto.UserDto;
-import com.musicservice.dto.UserDtoWithSongs;
+import com.musicservice.dto.get.SongGetDto;
+import com.musicservice.dto.get.UserGetDto;
+import com.musicservice.dto.post.UserPostDto;
+import com.musicservice.exception.SongAlreadyFavouriteException;
 import com.musicservice.exception.SongNotFoundException;
 import com.musicservice.exception.UserNotFoundException;
+import com.musicservice.model.Song;
 import com.musicservice.model.User;
+import com.musicservice.repository.jpa.SongRepository;
+import com.musicservice.repository.jpa.UserRepository;
 import com.musicservice.service.MapperService;
 import com.musicservice.service.UserMapperService;
 import com.musicservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
-    private final MapperService mapperService;
+    private final UserRepository userRepository;
+    private  final SongRepository songRepository;
     private final UserMapperService userMapperService;
-    private final UserDao userDao;
-    private final SongDao songDao;
+    private final MapperService songMapperService;
 
     @Autowired
-    public UserServiceImpl(MapperService mapperService, UserDao userDao, SongDao songDao,
-        UserMapperService userMapperService) {
-        this.mapperService = mapperService;
-        this.userDao = userDao;
-        this.songDao = songDao;
+    public UserServiceImpl(@Qualifier("jpaUserRepository") UserRepository userRepository, UserMapperService userMapperService,
+                           SongRepository songRepository, MapperService songMapperService) {
+        this.userRepository = userRepository;
         this.userMapperService = userMapperService;
+        this.songRepository = songRepository;
+        this.songMapperService = songMapperService;
     }
 
     @Override
-    public List<UserDto> getUsers() {
-        List<User> users = userDao.getUsers();
-        return userMapperService.usersToUserDtos(users);
+    public List<UserGetDto> getAll() {
+        List<User> songs = userRepository.findAll();
+        return userMapperService.usersToUserDtos(songs);
     }
 
     @Override
-    @Cacheable(value = "users", key = "#id")
-    public UserDto getUserById(int id) {
-        User user = userDao.getUserById(id);
-        return userMapperService.userToUserDto(user);
+    public UserGetDto getById(int id) {
+        Optional<User> foundUser = userRepository.findById(id);
+
+        User user;
+        if(foundUser.isPresent()) {
+            user = foundUser.get();
+        } else {
+            throw new SongNotFoundException(id);
+        }
+        return userMapperService.userToUserGetDto(user);
     }
 
     @Override
-    public UserDto addUser(UserDto userDto) {
-        User user = userMapperService.userDtoToUser(userDto);
-        userDao.addUser(user);
-        return userDto;
+    public List<SongGetDto> getFavouriteSongsByUserId(int userId) {
+        List<Song> favouriteSongs = songRepository.findByUsersId(userId);
+        List<SongGetDto> songGetDtos = songMapperService.songsToSongGetDtos(favouriteSongs);
+        return songGetDtos;
     }
 
     @Override
-    @CacheEvict(value = "users", key = "#userDto.id")
-    public UserDto updateUser(UserDto userDto) {
-        User user = userMapperService.userDtoToUser(userDto);
-        userDao.updateUser(user.getId(), user);
-        return userDto;
+    @Transactional
+    public UserGetDto save(UserPostDto userDto) {
+        User user = userMapperService.userPostDtoToUser(userDto);
+        User saved = userRepository.save(user);
+        return userMapperService.userToUserGetDto(saved);
     }
 
     @Override
-    @CacheEvict(value = "users", key = "#id")
-    public UserDto updateUser(int id, UserDto userDto) {
-        User user = userMapperService.userDtoToUser(userDto);
-        userDao.updateUser(id, user);
-        return userDto;
+    @Transactional
+    public UserGetDto updateUser(UserPostDto userDto, int id) {
+        Optional<User> existingUserOpt = userRepository.findById(id);
+        if (existingUserOpt.isEmpty()) {
+            throw new UserNotFoundException(id);
+        }
+        User existingUser = existingUserOpt.get();
+        existingUser.setName(userDto.getName());
+        existingUser.setEmail(userDto.getEmail());
+        User user = userRepository.save(existingUser);
+        return userMapperService.userToUserGetDto(user);
     }
 
     @Override
-    @CacheEvict(value = "users", key = "#id")
+    @Transactional
     public void deleteUser(int id) {
-        userDao.deleteUser(id);
+        userRepository.deleteById(id);
     }
 
     @Override
-    public UserDtoWithSongs getUserWithFavouriteSong(int userId) {
-        User user = userDao.getUserWithFavouriteSong(userId);
-        UserDtoWithSongs userDto = userMapperService.userToUserDtoWithSongs(user);
-        return userDto;
-    }
-
-    @Override
+    @Transactional
     public void addFavouriteSong(int userId, int songId) {
-        if (!userDao.userExists(userId)) {
+        Optional<User> existingUserOpt = userRepository.findById(userId);
+        if (existingUserOpt.isEmpty()) {
             throw new UserNotFoundException(userId);
         }
-        if (!songDao.songExists(songId)) {
+        Optional<Song> existingSongOpt = songRepository.findById(songId);
+        if (existingSongOpt.isEmpty()) {
             throw new SongNotFoundException(songId);
         }
-        userDao.addFavouriteSong(userId, songId);
+
+        User user = existingUserOpt.get();
+        Song song = existingSongOpt.get();
+
+        if (user.getFavouriteSongs().contains(song)) {
+            throw new SongAlreadyFavouriteException(songId);
+        }
+
+        user.getFavouriteSongs().add(song);
+        song.getUsers().add(user);
+
+        userRepository.save(user);
+        songRepository.save(song);
     }
 }

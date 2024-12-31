@@ -1,7 +1,8 @@
 package com.musicservice.service;
 
-import com.musicservice.dto.UserDto;
-import com.musicservice.dto.UserDtoWithSongs;
+import com.musicservice.dto.get.UserGetDto;
+import com.musicservice.dto.get.UserWithSongsGetDto;
+import com.musicservice.dto.post.UserPostDto;
 import com.musicservice.model.User;
 import org.mapstruct.Mapper;
 
@@ -9,11 +10,14 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapperService {
-    User userDtoToUser(UserDto source);
-    UserDto userToUserDto(User destination);
+    User userGetDtoToUser(UserGetDto source);
+    UserGetDto userToUserGetDto(User destination);
 
-    List<UserDto> usersToUserDtos(List<User> users);
-    List<User> userDtosToUsers(List<UserDto> userDtos);
+    List<UserGetDto> usersToUserDtos(List<User> users);
+    List<User> userDtosToUsers(List<UserGetDto> userDtos);
 
-    UserDtoWithSongs userToUserDtoWithSongs(User destination);
+    UserWithSongsGetDto userToUserDtoWithSongs(User destination);
+
+    User userPostDtoToUser(UserPostDto source);
+    UserPostDto userToUserPostDto(User destination);
 }

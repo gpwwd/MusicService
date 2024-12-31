@@ -1,4 +1,4 @@
-package com.musicservice.dto;
+package com.musicservice.dto.get;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,18 +6,17 @@ import lombok.Setter;
 import java.io.Serializable;
 
 @Getter @Setter
-public class CommentDto implements Serializable {
-    private Integer id;
-
-    public CommentDto() {
+public class CommentGetDto implements Serializable {
+    public CommentGetDto() {
     }
 
-    public CommentDto(Integer id, String comment, int rating) {
+    public CommentGetDto(Integer id, String comment, int rating) {
         this.id = id;
         this.comment = comment;
         this.rating = rating;
     }
 
+    private Integer id;
     private String comment;
     private int rating;
 }

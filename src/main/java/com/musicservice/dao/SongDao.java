@@ -3,12 +3,14 @@ package com.musicservice.dao;
 import com.musicservice.exception.SongNotFoundException;
 import com.musicservice.exception.UserNotFoundException;
 import com.musicservice.model.Comment;
+import com.musicservice.model.ImageInfo;
 import com.musicservice.model.Song;
 import com.musicservice.model.User;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -16,6 +18,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +65,18 @@ public class SongDao {
     public void addSong(Song song) {
         Session session = sessionFactory.getCurrentSession();
         session.persist(song);
+    }
+
+    @Transactional
+    public void addSong(Song song, String coverName) {
+        addSong(song);
+
+        Session session = sessionFactory.getCurrentSession();
+
+        ImageInfo image = new ImageInfo();
+        image.setSong(song);
+        song.setImageInfo(image);
+        session.save(image);
     }
 
     @Transactional

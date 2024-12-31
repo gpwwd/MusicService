@@ -1,21 +1,17 @@
 package com.musicservice.controller;
 
-import com.musicservice.dto.UserDto;
-import com.musicservice.dto.UserDtoWithSongs;
+import com.musicservice.dto.get.SongGetDto;
+import com.musicservice.dto.get.UserGetDto;
+import com.musicservice.dto.post.UserPostDto;
 import com.musicservice.exception.CustomValidationException;
-import com.musicservice.exception.UserNotFoundException;
-import com.musicservice.model.User;
 import com.musicservice.musicservice.UserServiceImpl;
 import com.musicservice.service.UserService;
 import com.musicservice.util.UserValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,42 +31,41 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<?> getUsers() {
-        List<UserDto> users = userService.getUsers();
+        List<UserGetDto> users = userService.getAll();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable("id") int id) {
-        UserDto user = userService.getUserById(id);
+        UserGetDto user = userService.getById(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/favourite-songs")
-    public ResponseEntity<?> getUserByIdWithSongs(@PathVariable int userId) {
-        UserDtoWithSongs user = userService.getUserWithFavouriteSong(userId);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+    public ResponseEntity<?> getFavouriteSongsByUserId(@PathVariable int userId) {
+        List<SongGetDto> song = userService.getFavouriteSongsByUserId(userId);
+        return new ResponseEntity<>(song, HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<?> postUser(@Valid @RequestBody UserDto userDto, BindingResult bindingResult) {
+    public ResponseEntity<?> postUser(@Valid @RequestBody UserPostDto userDto, BindingResult bindingResult) {
         userValidator.validate(userDto, bindingResult);
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult);
         }
 
-        UserDto user = userService.addUser(userDto);
+        UserGetDto user = userService.save(userDto);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
-    @PutMapping()
-    public ResponseEntity<?> putUser(@RequestBody UserDto userDto) {
-        UserDto user = userService.updateUser(userDto);
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<?> putUser(@PathVariable int id, @RequestBody UserDto userDto) {
-        UserDto user = userService.updateUser(id, userDto);
+    public ResponseEntity<?> putUser(@PathVariable int id, @Valid @RequestBody UserPostDto userDto, BindingResult bindingResult) {
+        userValidator.validate(userDto, bindingResult);
+        if (bindingResult.hasErrors()) {
+            throw new CustomValidationException(bindingResult);
+        }
+
+        UserGetDto user = userService.updateUser(userDto, id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 

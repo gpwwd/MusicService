@@ -1,13 +1,13 @@
 package com.musicservice.controller;
 
-import com.musicservice.dto.CommentDto;
-import com.musicservice.dto.SongDto;
-import com.musicservice.model.Song;
+import com.musicservice.dto.get.CommentGetDto;
+import com.musicservice.dto.post.SongPostDto;
+import com.musicservice.dto.get.SongGetDto;
+import com.musicservice.dto.post.SongWithImagePostDto;
 import com.musicservice.musicservice.SongServiceImpl;
 import com.musicservice.service.SongService;
 import com.musicservice.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,65 +22,46 @@ import java.util.Map;
 @RestController
 @RequestMapping("/songs")
 public class SongController {
-    private SongService songService;
-    private RedisTemplate<String, String> redisTemplate;
-    private StorageService storageService;
+    private final SongService songService;
 
     @Autowired
-    public SongController(SongServiceImpl songService, RedisTemplate<String, String> redisTemplate,
-                          StorageService storageService) {
-        this.storageService = storageService;
+    public SongController(SongServiceImpl songService) {
         this.songService = songService;
-        this.redisTemplate = redisTemplate;
-    }
-
-    @PostMapping("/test-redis")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Map.Entry<String, String> setString(@RequestBody Map.Entry<String, String> kvp) {
-        redisTemplate.opsForValue().set(kvp.getKey(), kvp.getValue());
-
-        return kvp;
     }
 
     @GetMapping()
     public ResponseEntity<?> getSongs() {
-        List<SongDto> songs = songService.getSongs();
+        List<SongGetDto> songs = songService.getAll();
         return new ResponseEntity<>(songs, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getSongById(@PathVariable("id") int id) {
-        SongDto song = songService.getSongById(id);
-        return new ResponseEntity<>(song, HttpStatus.OK);
-    }
-
-    @GetMapping("/with-comments/{id}")
-    public ResponseEntity<?> getSongWithCommentsById(@PathVariable("id") int id) {
-        SongDto song = songService.getSongWithCommentsById(id);
+        SongGetDto song = songService.getById(id);
         return new ResponseEntity<>(song, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/comments")
     public ResponseEntity<?> getCommentsBySongId(@PathVariable("id") int id) {
-        List<CommentDto> comments = songService.getCommentsBySongId(id);
+        List<CommentGetDto> comments = songService.getCommentsBySongId(id);
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<?> postSong(@RequestBody SongDto songDto) {
-        SongDto song = songService.addSong(songDto);
+    public ResponseEntity<?> postSong(@RequestBody SongPostDto songDto) {
+        SongPostDto song = songService.save(songDto);
         return new ResponseEntity<>(song, HttpStatus.CREATED);
     }
 
-    @PutMapping()
-    public ResponseEntity<?> putSong(@RequestBody SongDto songDto) {
-        SongDto song = songService.updateSong(songDto);
-        return new ResponseEntity<>(song, HttpStatus.OK);
+    @PostMapping(value = "/with-cover", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> postSong(@RequestPart SongWithImagePostDto songDto, @RequestPart("file") MultipartFile cover) {
+        SongPostDto song = songService.save(songDto, cover);
+        return new ResponseEntity<>(song, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> putSong(@PathVariable int id, @RequestBody SongDto songDto) {
-        SongDto song = songService.updateSong(id, songDto);
+    public ResponseEntity<?> putSong(@PathVariable int id, @RequestBody SongPostDto songDto) {
+        SongPostDto song = songService.updateSong(id, songDto);
         return new ResponseEntity<>(song, HttpStatus.OK);
     }
 
@@ -88,33 +69,5 @@ public class SongController {
     public ResponseEntity<?> deleteSong(@PathVariable int id) {
         songService.deleteSong(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
-    }
-
-    @GetMapping("/check-bucket")
-    public boolean CheckBucket() {
-        try{
-            String currentDirectory = Paths.get("").toAbsolutePath().toString();
-            System.out.println("Текущая рабочая директория: " + currentDirectory);
-            return storageService.bucketExists("jopa-bucket");
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    @PostMapping("/upload")
-    public String upload(@RequestParam("file") MultipartFile file) {
-        try {
-            //file name
-            String fileName = file.getOriginalFilename();
-//            String newFileName = System.currentTimeMillis() + "." + StringUtils.substringAfterLast(fileName, ".");
-            //type
-            String contentType = file.getContentType();
-            InputStream inputStream = file.getInputStream();
-            storageService.uploadFile("covers-bucket", fileName, inputStream, contentType);
-            return "upload success";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "upload fail";
-        }
     }
 }

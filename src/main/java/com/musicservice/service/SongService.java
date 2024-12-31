@@ -1,16 +1,19 @@
 package com.musicservice.service;
 
-import com.musicservice.dto.CommentDto;
-import com.musicservice.dto.SongDto;
+import com.musicservice.dto.get.CommentGetDto;
+import com.musicservice.dto.post.SongPostDto;
+import com.musicservice.dto.get.SongGetDto;
+import com.musicservice.dto.post.SongWithImagePostDto;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 public interface SongService {
-    List<SongDto> getSongs();
-    SongDto getSongById(int id);
-    SongDto addSong(SongDto songDto);
-    SongDto updateSong(SongDto songDto);
-    SongDto updateSong(int id, SongDto songDto);
+    List<SongGetDto> getAll();
+    SongGetDto getById(int id);
+    List<CommentGetDto> getCommentsBySongId(int id);
+    SongPostDto save(SongPostDto songDto);
+    SongPostDto save(SongWithImagePostDto songDto, MultipartFile cover);
+    SongPostDto updateSong(int id, SongPostDto songDto);
     void deleteSong(int id);
-    SongDto getSongWithCommentsById(int id);
-    List<CommentDto> getCommentsBySongId(int songId);
 }

@@ -1,8 +1,8 @@
-package com.musicservice.repository;
+package com.musicservice.repository.redis;
 
 import com.musicservice.model.Comment;
-import com.musicservice.model.Song;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,7 +23,7 @@ public class RedisCommentsRepository {
     private long songCacheTtl;
 
     @Autowired
-    public RedisCommentsRepository(RedisTemplate<String, Comment> redisTemplate) {
+    public RedisCommentsRepository(@Qualifier("commentRedisTemplate") RedisTemplate<String, Comment> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

@@ -1,4 +1,4 @@
-package com.musicservice.dto;
+package com.musicservice.dto.get;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,12 +6,12 @@ import lombok.Setter;
 import java.util.List;
 
 @Getter @Setter
-public class UserDtoWithSongs {
+public class UserWithSongsGetDto {
     private int id;
 
     private String name;
 
     private String email;
 
-    private List<SongDtoWithNoComments> favouriteSongs;
+    private List<SongGetDto> favouriteSongs;
 }

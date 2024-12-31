@@ -1,5 +1,6 @@
 package com.musicservice.configuration;
 
+import com.musicservice.dto.redis.SongRedisDto;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,7 +16,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 
 @Configuration
-@ComponentScan("com.musicservice")
+@ComponentScan("com.musicservice.repository.redis")
 @EnableCaching
 public class RedisConfiguration {
 
@@ -28,16 +29,20 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisTemplate<?, ?> redisTemplate() {
-        RedisTemplate<?, ?> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory());
-
+    public RedisTemplate<String, SongRedisDto> songRedisTemplate(JedisConnectionFactory jedisConnectionFactory) {
+        RedisTemplate<String, SongRedisDto> template = new RedisTemplate<>();
+        template.setConnectionFactory(jedisConnectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new StringRedisSerializer());
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(SongRedisDto.class));
+        return template;
+    }
 
-        // the following is not required
-        template.setHashValueSerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new StringRedisSerializer());
+    @Bean
+    public RedisTemplate<String, Comment> commentRedisTemplate(JedisConnectionFactory jedisConnectionFactory) {
+        RedisTemplate<String, Comment> template = new RedisTemplate<>();
+        template.setConnectionFactory(jedisConnectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(SongRedisDto.class));
         return template;
     }
 

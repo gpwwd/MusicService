@@ -1,9 +1,8 @@
 package com.musicservice.service;
 
-import com.musicservice.dto.CommentDto;
+import com.musicservice.dto.get.CommentGetDto;
 import com.musicservice.model.Comment;
 import org.mapstruct.Mapper;
-import org.mapstruct.Qualifier;
 import org.springframework.context.annotation.Primary;
 
 import java.util.List;
@@ -11,9 +10,9 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 @Primary
 public interface CommentMapperService {
-    List<CommentDto> commentsToCommentDtos(List<Comment> comments);
-    List<Comment> commentDtosToComments(List<CommentDto> commentDtos);
+    List<CommentGetDto> commentsToCommentDtos(List<Comment> comments);
+    List<Comment> commentDtosToComments(List<CommentGetDto> commentDtos);
 
-    Comment commentDtoToComment(CommentDto source);
-    CommentDto commentToCommentDto(Comment destination);
+    Comment commentDtoToComment(CommentGetDto source);
+    CommentGetDto commentToCommentDto(Comment destination);
 }
