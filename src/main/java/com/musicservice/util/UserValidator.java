@@ -1,11 +1,10 @@
 package com.musicservice.util;
 
-import com.musicservice.dao.UserDao;
 import com.musicservice.dto.get.UserGetDto;
 import com.musicservice.dto.post.UserPostDto;
 import com.musicservice.model.User;
 import com.musicservice.repository.jpa.UserRepository;
-import com.musicservice.service.UserMapperService;
+import com.musicservice.service.mapper.UserMapperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

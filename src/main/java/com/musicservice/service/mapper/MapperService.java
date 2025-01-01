@@ -1,4 +1,4 @@
-package com.musicservice.service;
+package com.musicservice.service.mapper;
 
 import com.musicservice.dto.post.SongPostDto;
 import com.musicservice.dto.get.SongGetDto;

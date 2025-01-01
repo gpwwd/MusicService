@@ -1,4 +1,4 @@
-package com.musicservice.service;
+package com.musicservice.service.mapper;
 
 import com.musicservice.dto.post.ImageInfoPostDto;
 import com.musicservice.model.ImageInfo;

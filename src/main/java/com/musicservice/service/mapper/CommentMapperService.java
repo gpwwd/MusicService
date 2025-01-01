@@ -1,4 +1,4 @@
-package com.musicservice.service;
+package com.musicservice.service.mapper;
 
 import com.musicservice.dto.get.CommentGetDto;
 import com.musicservice.model.Comment;

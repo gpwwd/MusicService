@@ -29,19 +29,21 @@ public class UserController {
         this.userValidator = userValidator;
     }
 
+
     @GetMapping()
     public ResponseEntity<?> getUsers() {
         List<UserGetDto> users = userService.getAll();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<?> getUserById(@PathVariable("id") int id) {
         UserGetDto user = userService.getById(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @GetMapping("/{userId}/favourite-songs")
+
+    @GetMapping("{userId}/favourite-songs")
     public ResponseEntity<?> getFavouriteSongsByUserId(@PathVariable int userId) {
         List<SongGetDto> song = userService.getFavouriteSongsByUserId(userId);
         return new ResponseEntity<>(song, HttpStatus.OK);

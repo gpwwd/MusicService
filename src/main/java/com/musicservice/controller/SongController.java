@@ -6,18 +6,13 @@ import com.musicservice.dto.get.SongGetDto;
 import com.musicservice.dto.post.SongWithImagePostDto;
 import com.musicservice.musicservice.SongServiceImpl;
 import com.musicservice.service.SongService;
-import com.musicservice.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/songs")
@@ -41,7 +36,7 @@ public class SongController {
         return new ResponseEntity<>(song, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/comments")
+    @GetMapping("/comments/{id}")
     public ResponseEntity<?> getCommentsBySongId(@PathVariable("id") int id) {
         List<CommentGetDto> comments = songService.getCommentsBySongId(id);
         return new ResponseEntity<>(comments, HttpStatus.OK);
