@@ -1,7 +1,7 @@
 package com.musicservice.musicservice;
 
 import com.musicservice.exception.StorageException;
-import com.musicservice.model.SongFileMetadataEntity;
+import com.musicservice.model.SongAudioMetadataEntity;
 import com.musicservice.repository.jpa.VideoFileMetadataRepository;
 import com.musicservice.service.StorageService;
 import com.musicservice.service.SongStorageService;
@@ -27,24 +27,16 @@ public class DefaultSongStorageServiceImpl implements SongStorageService {
         this.fileMetadataRepository = fileMetadataRepository;
     }
 
-    public record ChunkWithMetadata(
-            SongFileMetadataEntity metadata,
-            byte[] chunk
-    ) {}
-
-    @Override
-    public ChunkWithMetadata fetchChunk(UUID uuid, Range range) {
-        SongFileMetadataEntity fileMetadata = fileMetadataRepository.findById(uuid.toString()).orElseThrow();
-        return new ChunkWithMetadata(fileMetadata, readChunk(fileMetadata.getPath(), uuid, range, fileMetadata.getSize()));
-    }
-
+    //transactional потому что, если save самого аудио пройдет с ошибкой,
+    // то метаданные могут остаться в
+    // fileMetadataRepository, что недопустимо
     @Override
     @Transactional
     public UUID save(MultipartFile video) {
         try {
             UUID fileUuid = UUID.randomUUID();
             // аннотация builder в классе VideoFileMetadataEntity
-            SongFileMetadataEntity metadata = SongFileMetadataEntity.builder()
+            SongAudioMetadataEntity metadata = SongAudioMetadataEntity.builder()
                     .id(fileUuid.toString())
                     .size(video.getSize())
                     .path(video.getOriginalFilename())
@@ -59,6 +51,14 @@ public class DefaultSongStorageServiceImpl implements SongStorageService {
         }
     }
 
+
+    @Override
+    public ChunkWithMetadata fetchChunk(UUID uuid, Range range) {
+        SongAudioMetadataEntity fileMetadata = fileMetadataRepository.findById(uuid.toString()).orElseThrow();
+        return new ChunkWithMetadata(fileMetadata, readChunk(fileMetadata.getPath(), uuid, range, fileMetadata.getSize()));
+    }
+
+
     private byte[] readChunk(String path, UUID uuid, Range range, long fileSize) {
         long startPosition = range.getRangeStart();
         long endPosition = range.getRangeEnd(fileSize);
@@ -69,5 +69,10 @@ public class DefaultSongStorageServiceImpl implements SongStorageService {
             throw new StorageException(exception);
         }
     }
+
+    public record ChunkWithMetadata(
+            SongAudioMetadataEntity metadata,
+            byte[] chunk
+    ) {}
 
 }

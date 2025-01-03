@@ -1,8 +1,8 @@
 package com.musicservice.repository.jpa;
 
 
-import com.musicservice.model.SongFileMetadataEntity;
+import com.musicservice.model.SongAudioMetadataEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface VideoFileMetadataRepository extends JpaRepository<SongFileMetadataEntity, String> {
+public interface VideoFileMetadataRepository extends JpaRepository<SongAudioMetadataEntity, String> {
 }

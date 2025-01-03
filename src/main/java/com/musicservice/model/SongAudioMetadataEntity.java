@@ -1,9 +1,6 @@
 package com.musicservice.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -13,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="song_audio_metadata")
-public class SongFileMetadataEntity {
+public class SongAudioMetadataEntity {
 
     @Id
     private String id;
@@ -24,4 +21,7 @@ public class SongFileMetadataEntity {
 
     @Column(name = "http_content_type")
     private String httpContentType;
+
+    @OneToOne(mappedBy = "audioMetadata", cascade = CascadeType.ALL)
+    private Song song;
 }
