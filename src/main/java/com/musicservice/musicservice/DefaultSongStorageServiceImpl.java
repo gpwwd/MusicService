@@ -1,8 +1,9 @@
 package com.musicservice.musicservice;
 
+import com.musicservice.exception.AudioNotFoundException;
 import com.musicservice.exception.StorageException;
 import com.musicservice.model.SongAudioMetadataEntity;
-import com.musicservice.repository.jpa.VideoFileMetadataRepository;
+import com.musicservice.repository.jpa.AudioFileMetadataRepository;
 import com.musicservice.service.StorageService;
 import com.musicservice.service.SongStorageService;
 import com.musicservice.util.Range;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -19,15 +21,15 @@ public class DefaultSongStorageServiceImpl implements SongStorageService {
 
     private final StorageService storageService;
 
-    private final VideoFileMetadataRepository fileMetadataRepository;
+    private final AudioFileMetadataRepository fileMetadataRepository;
 
     @Autowired
-    public DefaultSongStorageServiceImpl(StorageService storageService, VideoFileMetadataRepository fileMetadataRepository) {
+    public DefaultSongStorageServiceImpl(StorageService storageService, AudioFileMetadataRepository fileMetadataRepository) {
         this.storageService = storageService;
         this.fileMetadataRepository = fileMetadataRepository;
     }
 
-    //transactional потому что, если save самого аудио пройдет с ошибкой,
+    // transactional потому что, если save самого аудио пройдет с ошибкой,
     // то метаданные могут остаться в
     // fileMetadataRepository, что недопустимо
     @Override
@@ -49,6 +51,23 @@ public class DefaultSongStorageServiceImpl implements SongStorageService {
         } catch (Exception ex) {
             throw new StorageException(ex);
         }
+    }
+
+    @Transactional
+    public void delete(UUID fileUuid) {
+        Optional<SongAudioMetadataEntity> metadataOpt = fileMetadataRepository.findById(fileUuid.toString());
+        if (metadataOpt.isEmpty()) {
+            throw new AudioNotFoundException(fileUuid.toString());
+        }
+        SongAudioMetadataEntity metadata = metadataOpt.get();
+
+        try {
+            storageService.delete(metadata.getPath(), fileUuid);
+        } catch (Exception e) {
+            throw new StorageException(e);
+        }
+
+        fileMetadataRepository.delete(metadata);
     }
 
 

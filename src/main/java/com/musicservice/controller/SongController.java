@@ -3,7 +3,7 @@ package com.musicservice.controller;
 import com.musicservice.dto.get.CommentGetDto;
 import com.musicservice.dto.post.SongPostDto;
 import com.musicservice.dto.get.SongGetDto;
-import com.musicservice.dto.post.SongWithImagePostDto;
+import com.musicservice.dto.post.SongWithImageAndAudioIdPostDto;
 import com.musicservice.musicservice.SongServiceImpl;
 import com.musicservice.service.SongService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,9 @@ public class SongController {
     }
 
     @PostMapping(value = "/with-cover", consumes = {"multipart/form-data"})
-    public ResponseEntity<?> postSong(@RequestPart SongWithImagePostDto songDto, @RequestPart("file") MultipartFile cover) {
+    public ResponseEntity<?> postSong(
+            @RequestPart SongWithImageAndAudioIdPostDto songDto,
+            @RequestPart("file") MultipartFile cover) {
         SongPostDto song = songService.save(songDto, cover);
         return new ResponseEntity<>(song, HttpStatus.CREATED);
     }

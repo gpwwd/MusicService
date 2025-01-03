@@ -34,6 +34,16 @@ public class StorageServiceImpl implements StorageService {
         );
     }
 
+    public void delete(String path, UUID id) throws Exception {
+        minioClient.removeObject(
+                RemoveObjectArgs
+                        .builder()
+                        .bucket(MinioConfiguration.SONG_AUDIO_BUCKET_NAME)
+                        .object(path + id.toString())
+                        .build()
+        );
+    }
+
     public InputStream getInputStream(String path, UUID id, long offset, long length) throws Exception {
         return minioClient.getObject(
                 GetObjectArgs

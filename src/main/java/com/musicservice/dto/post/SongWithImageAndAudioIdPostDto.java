@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SongWithImagePostDto {
+public class SongWithImageAndAudioIdPostDto {
     private String title;
     private ImageInfoPostDto imageInfo;
+    private String audioMetadataId;
 }

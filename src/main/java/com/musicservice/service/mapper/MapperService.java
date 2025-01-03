@@ -2,7 +2,7 @@ package com.musicservice.service.mapper;
 
 import com.musicservice.dto.post.SongPostDto;
 import com.musicservice.dto.get.SongGetDto;
-import com.musicservice.dto.post.SongWithImagePostDto;
+import com.musicservice.dto.post.SongWithImageAndAudioIdPostDto;
 import com.musicservice.model.Song;
 import org.mapstruct.Mapper;
 
@@ -19,7 +19,7 @@ public interface MapperService {
     SongGetDto songToSongDtoWithNoComments(Song destination);
     List<SongGetDto> songsToSongGetDtos(List<Song> songs);
 
-    Song SongWithImagePostDtoToSong(SongWithImagePostDto source);
-    SongWithImagePostDto songToSongWithImagePostDto(Song destination);
+    Song SongWithImagePostDtoToSong(SongWithImageAndAudioIdPostDto source);
+    SongWithImageAndAudioIdPostDto songToSongWithImagePostDto(Song destination);
 }
     

@@ -10,4 +10,6 @@ public interface SongStorageService {
     UUID save(MultipartFile video);
 
     DefaultSongStorageServiceImpl.ChunkWithMetadata fetchChunk(UUID id, Range range);
+
+    void delete(UUID fileUuid);
 }

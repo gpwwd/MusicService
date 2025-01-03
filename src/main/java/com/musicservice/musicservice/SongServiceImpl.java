@@ -3,12 +3,16 @@ package com.musicservice.musicservice;
 import com.musicservice.dto.get.CommentGetDto;
 import com.musicservice.dto.post.SongPostDto;
 import com.musicservice.dto.get.SongGetDto;
-import com.musicservice.dto.post.SongWithImagePostDto;
+import com.musicservice.dto.post.SongWithImageAndAudioIdPostDto;
+import com.musicservice.exception.AudioNotFoundException;
 import com.musicservice.exception.SongNotFoundException;
 import com.musicservice.model.Comment;
 import com.musicservice.model.Song;
+import com.musicservice.model.SongAudioMetadataEntity;
+import com.musicservice.repository.jpa.AudioFileMetadataRepository;
 import com.musicservice.repository.jpa.CommentRepository;
 import com.musicservice.repository.jpa.SongRepository;
+import com.musicservice.service.SongStorageService;
 import com.musicservice.service.mapper.CommentMapperService;
 import com.musicservice.service.mapper.MapperService;
 import com.musicservice.service.SongService;
@@ -19,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -28,14 +33,19 @@ public class SongServiceImpl implements SongService {
     private final CommentRepository commentRepository;
     private final MapperService songMapper;
     private final CommentMapperService commentMapperService;
+    private final AudioFileMetadataRepository audioFileMetadataRepository;
+    private final SongStorageService songStorageService;
 
     @Autowired
     public SongServiceImpl(SongRepository songRepository, MapperService songMapper,
-                           CommentRepository commentRepository, CommentMapperService commentMapperService) {
+                           CommentRepository commentRepository, CommentMapperService commentMapperService,
+                           AudioFileMetadataRepository audioFileMetadataRepository, DefaultSongStorageServiceImpl songStorageService) {
         this.songRepository = songRepository;
         this.songMapper = songMapper;
         this.commentRepository = commentRepository;
         this.commentMapperService = commentMapperService;
+        this.audioFileMetadataRepository = audioFileMetadataRepository;
+        this.songStorageService = songStorageService;
     }
 
     @Override
@@ -74,13 +84,21 @@ public class SongServiceImpl implements SongService {
 
     @Override
     @Transactional
-    public SongPostDto save(SongWithImagePostDto songDto, MultipartFile cover) {
+    public SongPostDto save(SongWithImageAndAudioIdPostDto songDto, MultipartFile cover) {
         Song song = songMapper.SongWithImagePostDtoToSong(songDto);
+
         if(!cover.getOriginalFilename().isEmpty()) {
             song.getImageInfo().setPath(cover.getOriginalFilename());
         } else {
             song.setImageInfo(null);
         }
+
+        SongAudioMetadataEntity audioMetadata = audioFileMetadataRepository.findById(songDto.getAudioMetadataId())
+                .orElseThrow(() -> new AudioNotFoundException(songDto.getAudioMetadataId()));
+
+        song.setAudioMetadata(audioMetadata);
+        audioMetadata.setSong(song);
+
         Song saved = songRepository.save(song);
         return songMapper.songToSongDto(saved);
     }
@@ -101,6 +119,15 @@ public class SongServiceImpl implements SongService {
     @Override
     @Transactional
     public void deleteSong(int id) {
+        Optional<Song> songToDeleteOptional = songRepository.findById(id);
+        if (songToDeleteOptional.isEmpty()) {
+            throw new SongNotFoundException(id);
+        }
+        Song songToDelete = songToDeleteOptional.get();
+
+        String audioMetadataId = songToDelete.getAudioMetadata().getId();
+        songStorageService.delete(UUID.fromString(audioMetadataId));
+
         songRepository.deleteById(id);
     }
 
