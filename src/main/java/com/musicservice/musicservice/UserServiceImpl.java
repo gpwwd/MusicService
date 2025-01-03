@@ -10,7 +10,7 @@ import com.musicservice.model.Song;
 import com.musicservice.model.User;
 import com.musicservice.repository.jpa.SongRepository;
 import com.musicservice.repository.jpa.UserRepository;
-import com.musicservice.service.mapper.MapperService;
+import com.musicservice.service.mapper.SongMapperService;
 import com.musicservice.service.mapper.UserMapperService;
 import com.musicservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +28,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private  final SongRepository songRepository;
     private final UserMapperService userMapperService;
-    private final MapperService songMapperService;
+    private final SongMapperService songMapperService;
 
     @Autowired
     public UserServiceImpl(@Qualifier("jpaUserRepository") UserRepository userRepository, UserMapperService userMapperService,
-                           SongRepository songRepository, MapperService songMapperService) {
+                           SongRepository songRepository, SongMapperService songMapperService) {
         this.userRepository = userRepository;
         this.userMapperService = userMapperService;
         this.songRepository = songRepository;

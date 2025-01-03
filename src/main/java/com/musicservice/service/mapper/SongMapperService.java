@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface MapperService {
+public interface SongMapperService {
     Song songDtoToSong(SongPostDto source);
     SongPostDto songToSongDto(Song destination);
 

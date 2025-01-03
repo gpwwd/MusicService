@@ -14,8 +14,9 @@ import com.musicservice.repository.jpa.CommentRepository;
 import com.musicservice.repository.jpa.SongRepository;
 import com.musicservice.service.SongStorageService;
 import com.musicservice.service.mapper.CommentMapperService;
-import com.musicservice.service.mapper.MapperService;
+import com.musicservice.service.mapper.SongMapperService;
 import com.musicservice.service.SongService;
+import com.musicservice.util.AudioFileResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,13 +32,13 @@ public class SongServiceImpl implements SongService {
 
     private final SongRepository songRepository;
     private final CommentRepository commentRepository;
-    private final MapperService songMapper;
+    private final SongMapperService songMapper;
     private final CommentMapperService commentMapperService;
     private final AudioFileMetadataRepository audioFileMetadataRepository;
     private final SongStorageService songStorageService;
 
     @Autowired
-    public SongServiceImpl(SongRepository songRepository, MapperService songMapper,
+    public SongServiceImpl(SongRepository songRepository, SongMapperService songMapper,
                            CommentRepository commentRepository, CommentMapperService commentMapperService,
                            AudioFileMetadataRepository audioFileMetadataRepository, DefaultSongStorageServiceImpl songStorageService) {
         this.songRepository = songRepository;
@@ -64,7 +65,19 @@ public class SongServiceImpl implements SongService {
         } else {
             throw new SongNotFoundException(id);
         }
+
         return songMapper.songToSongDtoWithNoComments(song);
+    }
+
+    @Override
+    public AudioFileResponse getAudioFileMetadataBySongId(int id){
+        Optional<Song> foundSong = songRepository.findById(id);
+        if (foundSong.isEmpty()) {
+            throw new SongNotFoundException(id);
+        }
+        Song existingSong = foundSong.get();
+        SongAudioMetadataEntity metadata = existingSong.getAudioMetadata();
+        return new AudioFileResponse(UUID.fromString(metadata.getId()), metadata.getPath());
     }
 
     @Override

@@ -4,8 +4,11 @@ import com.musicservice.dto.get.CommentGetDto;
 import com.musicservice.dto.post.SongPostDto;
 import com.musicservice.dto.get.SongGetDto;
 import com.musicservice.dto.post.SongWithImageAndAudioIdPostDto;
+import com.musicservice.model.SongAudioMetadataEntity;
 import com.musicservice.musicservice.SongServiceImpl;
 import com.musicservice.service.SongService;
+import com.musicservice.util.AudioFileResponse;
+import com.musicservice.util.SongGetDtoWithMetadataResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +34,11 @@ public class SongController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getSongById(@PathVariable("id") int id) {
+    public ResponseEntity<SongGetDtoWithMetadataResponse> getSongById(@PathVariable("id") int id) {
         SongGetDto song = songService.getById(id);
-        return new ResponseEntity<>(song, HttpStatus.OK);
+        AudioFileResponse metadata = songService.getAudioFileMetadataBySongId(id);
+        SongGetDtoWithMetadataResponse response = new SongGetDtoWithMetadataResponse(song, metadata);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/comments/{id}")

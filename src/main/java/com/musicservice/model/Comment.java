@@ -17,12 +17,6 @@ public class Comment implements Serializable {
     public Comment() {
     }
 
-    public Comment(Integer id, String comment, int rating) {
-        this.id = id;
-        this.comment = comment;
-        this.rating = rating;
-    }
-
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;

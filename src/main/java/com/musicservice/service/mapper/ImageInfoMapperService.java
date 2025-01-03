@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Primary;
 
 @Mapper(componentModel = "spring")
 @Primary
-public interface ImageInfoMapper {
+public interface ImageInfoMapperService {
     ImageInfo imageInfoDtoToImageInfo(ImageInfoPostDto source);
     ImageInfoPostDto imageInfoToImageInfoDto(ImageInfo destination);
 }
