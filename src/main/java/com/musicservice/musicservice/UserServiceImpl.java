@@ -15,6 +15,10 @@ import com.musicservice.service.mapper.UserMapperService;
 import com.musicservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,18 +29,46 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
+    private static final int ENCODER_STRENGTH = 12;
+
     private final UserRepository userRepository;
     private  final SongRepository songRepository;
     private final UserMapperService userMapperService;
     private final SongMapperService songMapperService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Autowired
     public UserServiceImpl(@Qualifier("jpaUserRepository") UserRepository userRepository, UserMapperService userMapperService,
-                           SongRepository songRepository, SongMapperService songMapperService) {
+                           SongRepository songRepository, SongMapperService songMapperService, AuthenticationManager authenticationManager,
+                           JwtService jwtService) {
         this.userRepository = userRepository;
         this.userMapperService = userMapperService;
         this.songRepository = songRepository;
         this.songMapperService = songMapperService;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+    }
+
+    @Override
+    @Transactional
+    public UserGetDto register(UserPostDto userDto) {
+        User user = userMapperService.userPostDtoToUser(userDto);
+        user.setPassword(new BCryptPasswordEncoder(ENCODER_STRENGTH).encode(userDto.getPassword()));
+        User saved = userRepository.save(user);
+        return userMapperService.userToUserGetDto(saved);
+    }
+
+    @Override
+    public String login(UserPostDto userDto) {
+        Authentication authentication =
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDto.getName(), userDto.getPassword()));
+
+        if(authentication.isAuthenticated()) {
+            return jwtService.generateToken(userDto.getName());
+        }
+
+         return "fail";
     }
 
     @Override
@@ -63,14 +95,6 @@ public class UserServiceImpl implements UserService {
         List<Song> favouriteSongs = songRepository.findByUsersId(userId);
         List<SongGetDto> songGetDtos = songMapperService.songsToSongGetDtos(favouriteSongs);
         return songGetDtos;
-    }
-
-    @Override
-    @Transactional
-    public UserGetDto save(UserPostDto userDto) {
-        User user = userMapperService.userPostDtoToUser(userDto);
-        User saved = userRepository.save(user);
-        return userMapperService.userToUserGetDto(saved);
     }
 
     @Override

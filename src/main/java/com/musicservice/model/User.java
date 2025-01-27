@@ -21,7 +21,11 @@ public class User implements Serializable {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "email")
     private String email;
+
+    @Column(name = "password")
+    private String password;
 
     @ManyToMany(mappedBy="users", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private List<Song> favouriteSongs;

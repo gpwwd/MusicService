@@ -9,6 +9,6 @@ import java.io.Serializable;
 @Setter
 public class UserPostDto implements Serializable {
     private String name;
-
     private String email;
+    private String password;
 }

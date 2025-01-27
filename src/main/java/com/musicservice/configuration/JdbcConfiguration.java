@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan("com.musicservice")
-public class AppConfiguration {
+public class JdbcConfiguration {
 
     @Value("${spring.datasource.url}")
     private String url;

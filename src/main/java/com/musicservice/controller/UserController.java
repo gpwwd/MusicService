@@ -49,15 +49,21 @@ public class UserController {
         return new ResponseEntity<>(song, HttpStatus.OK);
     }
 
-    @PostMapping()
-    public ResponseEntity<?> postUser(@Valid @RequestBody UserPostDto userDto, BindingResult bindingResult) {
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody UserPostDto userDto, BindingResult bindingResult) {
         userValidator.validate(userDto, bindingResult);
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult);
         }
 
-        UserGetDto user = userService.save(userDto);
+        UserGetDto user = userService.register(userDto);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody UserPostDto userDto) {
+        String status = userService.login(userDto);
+        return new ResponseEntity<>(status, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
