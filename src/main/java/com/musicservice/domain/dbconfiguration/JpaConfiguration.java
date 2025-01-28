@@ -20,6 +20,7 @@ import java.util.Properties;
 @EnableJpaRepositories("com.musicservice.domain.repository.jpa")
 public class JpaConfiguration {
     private final Environment env;
+    private final String packagesToScanForModels = "com.musicservice.domain.model";
 
     @Autowired
     public JpaConfiguration(Environment env) {
@@ -50,7 +51,7 @@ public class JpaConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSourceJpa());
-        em.setPackagesToScan(new String[] { "com.musicservice.model" });
+        em.setPackagesToScan(new String[] { packagesToScanForModels });
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaProperties(hibernateProperties());

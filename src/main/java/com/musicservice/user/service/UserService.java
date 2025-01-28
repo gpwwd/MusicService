@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
-public class UserService implements UserService {
+public class UserService {
 
     private static final int ENCODER_STRENGTH = 12;
 
@@ -40,13 +40,11 @@ public class UserService implements UserService {
         this.songMapperService = songMapperService;
     }
 
-    @Override
     public List<UserGetDto> getAll() {
         List<User> songs = userRepository.findAll();
         return userMapperService.usersToUserDtos(songs);
     }
 
-    @Override
     public UserGetDto getById(int id) {
         Optional<User> foundUser = userRepository.findById(id);
 
@@ -59,14 +57,12 @@ public class UserService implements UserService {
         return userMapperService.userToUserGetDto(user);
     }
 
-    @Override
     public List<SongGetDto> getFavouriteSongsByUserId(int userId) {
         List<Song> favouriteSongs = songRepository.findByUsersId(userId);
         List<SongGetDto> songGetDtos = songMapperService.songsToSongGetDtos(favouriteSongs);
         return songGetDtos;
     }
 
-    @Override
     @Transactional
     public UserGetDto updateUser(UserPostDto userDto, int id) {
         Optional<User> existingUserOpt = userRepository.findById(id);
@@ -80,13 +76,11 @@ public class UserService implements UserService {
         return userMapperService.userToUserGetDto(user);
     }
 
-    @Override
     @Transactional
     public void deleteUser(int id) {
         userRepository.deleteById(id);
     }
 
-    @Override
     @Transactional
     public void addFavouriteSong(int userId, int songId) {
         Optional<User> existingUserOpt = userRepository.findById(userId);
