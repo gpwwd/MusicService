@@ -64,7 +64,7 @@ public class SongService {
             throw new SongNotFoundException(id);
         }
 
-        return songMapper.songToSongDtoWithNoComments(song);
+        return songMapper.songToSongGetDto(song);
     }
 
     public AudioFileMetadataResponse getAudioFileMetadataBySongId(int id){

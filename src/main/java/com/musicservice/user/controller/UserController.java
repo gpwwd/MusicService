@@ -8,6 +8,7 @@ import com.musicservice.user.service.UserService;
 import com.musicservice.user.util.UserValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -20,18 +21,16 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final UserValidator userValidator;
-
     @Autowired
-    public UserController(UserService userService, UserValidator userValidator) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userValidator = userValidator;
     }
 
-
     @GetMapping()
-    public ResponseEntity<?> getUsers() {
-        List<UserGetDto> users = userService.getAll();
+    public ResponseEntity<Page<UserGetDto>> getUsers(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "size", defaultValue = "5") Integer size) {
+        Page<UserGetDto> users = userService.getAll(page, size);
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
@@ -41,33 +40,18 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-
-    @GetMapping("{userId}/favourite-songs")
-    public ResponseEntity<?> getFavouriteSongsByUserId(@PathVariable int userId) {
-        List<SongGetDto> song = userService.getFavouriteSongsByUserId(userId);
+    @GetMapping("/{id}/favorites")
+    public ResponseEntity<Page<SongGetDto>> getFavouriteSongsByUserId(
+            @PathVariable int id,
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "size", defaultValue = "5") Integer size) {
+        Page<SongGetDto> song = userService.getFavouriteSongsByUserId(id, page, size);
         return new ResponseEntity<>(song, HttpStatus.OK);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> putUser(@PathVariable int id, @Valid @RequestBody UserPostDto userDto, BindingResult bindingResult) {
-        userValidator.validate(userDto, bindingResult);
-        if (bindingResult.hasErrors()) {
-            throw new CustomValidationException(bindingResult);
-        }
-
-        UserGetDto user = userService.updateUser(userDto, id);
-        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable int id) {
         userService.deleteUser(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
-    }
-
-    @PostMapping("/{userId}/favourite-songs/{songId}")
-    public ResponseEntity<?> addFavouriteSong(@PathVariable int userId, @PathVariable int songId) {
-        userService.addFavouriteSong(userId, songId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

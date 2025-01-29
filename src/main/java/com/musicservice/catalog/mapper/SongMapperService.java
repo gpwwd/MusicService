@@ -16,7 +16,7 @@ public interface SongMapperService {
     List<SongPostDto> songsToSongDtos(List<Song> songs);
     List<Song> songDtosToSongs(List<SongPostDto> songDtos);
 
-    SongGetDto songToSongDtoWithNoComments(Song destination);
+    SongGetDto songToSongGetDto(Song destination);
     List<SongGetDto> songsToSongGetDtos(List<Song> songs);
 
     Song SongWithImagePostDtoToSong(SongWithImageAndAudioIdPostDto source);

@@ -14,6 +14,9 @@ import com.musicservice.catalog.mapper.SongMapperService;
 import com.musicservice.user.mapper.UserMapperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,9 +43,10 @@ public class UserService {
         this.songMapperService = songMapperService;
     }
 
-    public List<UserGetDto> getAll() {
-        List<User> songs = userRepository.findAll();
-        return userMapperService.usersToUserDtos(songs);
+    public Page<UserGetDto> getAll(Integer page, Integer size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<User> users = userRepository.findAll(pageRequest);
+        return users.map(userMapperService::userToUserGetDto);
     }
 
     public UserGetDto getById(int id) {
@@ -57,10 +61,10 @@ public class UserService {
         return userMapperService.userToUserGetDto(user);
     }
 
-    public List<SongGetDto> getFavouriteSongsByUserId(int userId) {
-        List<Song> favouriteSongs = songRepository.findByUsersId(userId);
-        List<SongGetDto> songGetDtos = songMapperService.songsToSongGetDtos(favouriteSongs);
-        return songGetDtos;
+    public Page<SongGetDto> getFavouriteSongsByUserId(int userId, Integer page, Integer size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Song> favouriteSongs = songRepository.findByUsersId(userId, pageRequest);
+        return favouriteSongs.map(songMapperService::songToSongGetDto);
     }
 
     @Transactional

@@ -80,7 +80,7 @@ public class AudioController {
                 .body(chunkWithMetadata.chunk());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/metadata")
     public ResponseEntity<AudioFileMetadataResponse> getAudioFileMetadataBySongId(@PathVariable("id") int id) {
         AudioFileMetadataResponse metadata = songService.getAudioFileMetadataBySongId(id);
         return new ResponseEntity<>(metadata, HttpStatus.OK);
