@@ -16,8 +16,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/profile")
 public class ProfileController {
@@ -59,7 +57,11 @@ public class ProfileController {
 
     @PostMapping("/favorites/{songId}")
     public ResponseEntity<?> addFavouriteSong(@AuthenticationPrincipal UserPrincipal userDetails, @PathVariable int songId) {
-        userService.addFavouriteSong(userDetails.getUser().getId(), songId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(userService.addSongToFavourites(userDetails.getUser().getId(), songId), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/favourites/{songId}")
+    public ResponseEntity<?> deleteFavouriteSong(@AuthenticationPrincipal UserPrincipal userDetails, @PathVariable int songId) {
+        return new ResponseEntity<>(userService.deleteSongFromFavourites(userDetails.getUser().getId(), songId), HttpStatus.OK);
     }
 }

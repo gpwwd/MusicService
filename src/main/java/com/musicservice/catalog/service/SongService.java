@@ -2,9 +2,11 @@ package com.musicservice.catalog.service;
 
 import com.musicservice.catalog.dto.get.CommentGetDto;
 import com.musicservice.catalog.dto.post.SongPostDto;
+import com.musicservice.catalog.dto.post.SongUpdateDto;
 import com.musicservice.catalog.dto.get.SongGetDto;
-import com.musicservice.catalog.dto.post.SongWithImageAndAudioIdPostDto;
+import com.musicservice.domain.model.ImageInfo;
 import com.musicservice.exception.AudioNotFoundException;
+import com.musicservice.exception.BadRequestException;
 import com.musicservice.exception.SongNotFoundException;
 import com.musicservice.domain.model.Comment;
 import com.musicservice.domain.model.Song;
@@ -18,11 +20,12 @@ import com.musicservice.catalog.mapper.CommentMapperService;
 import com.musicservice.catalog.mapper.SongMapperService;
 import com.musicservice.media.dto.AudioFileMetadataResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,59 +52,46 @@ public class SongService {
         this.songStorageService = songStorageService;
     }
 
-    public List<SongGetDto> getAll() {
-        List<Song> songs = songRepository.findAll();
-        return songMapper.songsToSongGetDtos(songs);
+    public Page<SongGetDto> getAll(Integer page, Integer size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Song> songs = songRepository.findAll(pageRequest);
+        return songs.map(songMapper::songToSongGetDto);
     }
 
     public SongGetDto getById(int id) {
-        Optional<Song> foundSong = songRepository.findById(id);
-
-        Song song;
-        if(foundSong.isPresent()) {
-            song = foundSong.get();
-        } else {
-            throw new SongNotFoundException(id);
-        }
-
-        return songMapper.songToSongGetDto(song);
+        Song foundSong = songRepository.findById(id)
+                .orElseThrow(() -> new SongNotFoundException(id));
+        return songMapper.songToSongGetDto(foundSong);
     }
 
     public AudioFileMetadataResponse getAudioFileMetadataBySongId(int id){
-        Optional<Song> foundSong = songRepository.findById(id);
-        if (foundSong.isEmpty()) {
-            throw new SongNotFoundException(id);
-        }
-        Song existingSong = foundSong.get();
-        SongAudioMetadataEntity metadata = existingSong.getAudioMetadata();
+        Song foundSong = songRepository.findById(id)
+                .orElseThrow(() -> new SongNotFoundException(id));
+        SongAudioMetadataEntity metadata = foundSong.getAudioMetadata();
         return new AudioFileMetadataResponse(UUID.fromString(metadata.getId()), metadata.getPath());
     }
 
-    public List<CommentGetDto> getCommentsBySongId(int id) {
-        List<Comment> comments = commentRepository.findBySongId(id);
-        List<CommentGetDto> commentGetDtos = commentMapperService.commentsToCommentDtos(comments);
-        return commentGetDtos;
+    public Page<CommentGetDto> getCommentsBySongId(int id, Integer page, Integer size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Comment> comments = commentRepository.findBySongId(id, pageRequest);
+        return comments.map(commentMapperService::commentToCommentDto);
     }
 
     @Transactional
-    public SongPostDto save(SongPostDto songDto) {
-        Song song = songMapper.songDtoToSong(songDto);
-        Song saved = songRepository.save(song);
-        return songMapper.songToSongDto(saved);
-    }
+    public SongUpdateDto save(SongPostDto songDto, MultipartFile cover, UUID audioMetadataId) {
+        Song song = songMapper.SongPostDtoToEntity(songDto);
 
-    @Transactional
-    public SongPostDto save(SongWithImageAndAudioIdPostDto songDto, MultipartFile cover) {
-        Song song = songMapper.SongWithImagePostDtoToSong(songDto);
-
-        if(!cover.getOriginalFilename().isEmpty()) {
+        if (!cover.isEmpty()) {
+            if (song.getImageInfo() == null) {
+                song.setImageInfo(new ImageInfo()); // Создаем объект, если он отсутствует
+            }
             song.getImageInfo().setPath(cover.getOriginalFilename());
         } else {
             song.setImageInfo(null);
         }
 
-        SongAudioMetadataEntity audioMetadata = audioFileMetadataRepository.findById(songDto.getAudioMetadataId())
-                .orElseThrow(() -> new AudioNotFoundException(songDto.getAudioMetadataId()));
+        SongAudioMetadataEntity audioMetadata = audioFileMetadataRepository.findById(audioMetadataId.toString())
+                .orElseThrow(() -> new AudioNotFoundException(audioMetadataId.toString()));
 
         song.setAudioMetadata(audioMetadata);
         audioMetadata.setSong(song);
@@ -111,7 +101,7 @@ public class SongService {
     }
 
     @Transactional
-    public SongPostDto updateSong(int id, SongPostDto songDto) {
+    public SongUpdateDto updateSong(int id, SongUpdateDto songDto) {
         Optional<Song> existingSongOpt = songRepository.findById(id);
         if (existingSongOpt.isEmpty()) {
             throw new SongNotFoundException(id);

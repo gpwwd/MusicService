@@ -32,19 +32,19 @@ public class DefaultSongStorageServiceImpl implements SongStorageService {
     // fileMetadataRepository, что недопустимо
     @Override
     @Transactional
-    public UUID save(MultipartFile video) {
+    public UUID save(MultipartFile audio) {
         try {
             UUID fileUuid = UUID.randomUUID();
             // аннотация builder в классе VideoFileMetadataEntity
             SongAudioMetadataEntity metadata = SongAudioMetadataEntity.builder()
                     .id(fileUuid.toString())
-                    .size(video.getSize())
-                    .path(video.getOriginalFilename())
-                    .httpContentType(video.getContentType())
+                    .size(audio.getSize())
+                    .path(audio.getOriginalFilename())
+                    .httpContentType(audio.getContentType())
                     .build();
 
             fileMetadataRepository.save(metadata);
-            storageServiceBase.save(video, video.getOriginalFilename(), fileUuid);
+            storageServiceBase.save(audio, audio.getOriginalFilename(), fileUuid);
             return fileUuid;
         } catch (Exception ex) {
             throw new StorageException(ex);

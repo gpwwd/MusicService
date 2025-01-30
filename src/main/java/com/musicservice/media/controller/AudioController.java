@@ -1,6 +1,7 @@
 package com.musicservice.media.controller;
 
 
+import com.musicservice.catalog.dto.post.SongPostDto;
 import com.musicservice.catalog.service.SongService;
 import com.musicservice.media.service.DefaultSongStorageServiceImpl;
 import com.musicservice.media.service.SongStorageService;
@@ -59,7 +60,7 @@ public class AudioController {
             }
     )
     @PostMapping
-    public ResponseEntity<AudioFileMetadataResponse> save(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<AudioFileMetadataResponse> save(@RequestPart("file") MultipartFile file) {
         UUID fileUuid = songStorageService.save(file);
         String originalFilename = file.getOriginalFilename();
         AudioFileMetadataResponse response = new AudioFileMetadataResponse(fileUuid, originalFilename);
@@ -78,12 +79,6 @@ public class AudioController {
                 .header(CONTENT_LENGTH, calculateContentLengthHeader(parsedRange, chunkWithMetadata.metadata().getSize()))
                 .header(CONTENT_RANGE, constructContentRangeHeader(parsedRange, chunkWithMetadata.metadata().getSize()))
                 .body(chunkWithMetadata.chunk());
-    }
-
-    @GetMapping("/{id}/metadata")
-    public ResponseEntity<AudioFileMetadataResponse> getAudioFileMetadataBySongId(@PathVariable("id") int id) {
-        AudioFileMetadataResponse metadata = songService.getAudioFileMetadataBySongId(id);
-        return new ResponseEntity<>(metadata, HttpStatus.OK);
     }
 
     private String calculateContentLengthHeader(Range range, long fileSize) {

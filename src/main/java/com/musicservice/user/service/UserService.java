@@ -16,18 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.musicservice.exception.BadRequestException;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 public class UserService {
-
-    private static final int ENCODER_STRENGTH = 12;
 
     private final UserRepository userRepository;
     private  final SongRepository songRepository;
@@ -50,15 +47,10 @@ public class UserService {
     }
 
     public UserGetDto getById(int id) {
-        Optional<User> foundUser = userRepository.findById(id);
+        User foundUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
 
-        User user;
-        if(foundUser.isPresent()) {
-            user = foundUser.get();
-        } else {
-            throw new SongNotFoundException(id);
-        }
-        return userMapperService.userToUserGetDto(user);
+        return userMapperService.userToUserGetDto(foundUser);
     }
 
     public Page<SongGetDto> getFavouriteSongsByUserId(int userId, Integer page, Integer size) {
@@ -86,27 +78,41 @@ public class UserService {
     }
 
     @Transactional
-    public void addFavouriteSong(int userId, int songId) {
-        Optional<User> existingUserOpt = userRepository.findById(userId);
-        if (existingUserOpt.isEmpty()) {
-            throw new UserNotFoundException(userId);
-        }
-        Optional<Song> existingSongOpt = songRepository.findById(songId);
-        if (existingSongOpt.isEmpty()) {
-            throw new SongNotFoundException(songId);
-        }
+    public int addSongToFavourites(int userId, int songId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
-        User user = existingUserOpt.get();
-        Song song = existingSongOpt.get();
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new SongNotFoundException(songId));
 
-        if (user.getFavouriteSongs().contains(song)) {
-            throw new SongAlreadyFavouriteException(songId);
-        }
+        if (user.getFavouriteSongs().contains(song))
+            throw new BadRequestException(
+                    "Song with id '" + songId + "' already has already been added to favourites.");
 
         user.getFavouriteSongs().add(song);
         song.getUsers().add(user);
-
         userRepository.save(user);
         songRepository.save(song);
+
+        return song.getId();
+    }
+
+    public int deleteSongFromFavourites(int userId, int songId) throws BadRequestException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new SongNotFoundException(songId));
+
+        if (!user.getFavouriteSongs().contains(song)) {
+            throw new BadRequestException("User with ID " + songId + " not found");
+        }
+
+        user.getFavouriteSongs().remove(song);
+        song.getUsers().remove(user);
+        userRepository.save(user);
+        songRepository.save(song);
+
+        return song.getId();
     }
 }
