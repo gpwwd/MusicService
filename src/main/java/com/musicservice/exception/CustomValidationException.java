@@ -1,7 +1,9 @@
 package com.musicservice.exception;
 
+import lombok.Getter;
 import org.springframework.validation.BindingResult;
 
+@Getter
 public class CustomValidationException extends RuntimeException  {
     private final BindingResult bindingResult;
 
@@ -10,7 +12,4 @@ public class CustomValidationException extends RuntimeException  {
         this.bindingResult = bindingResult;
     }
 
-    public BindingResult getBindingResult() {
-        return bindingResult;
-    }
 }

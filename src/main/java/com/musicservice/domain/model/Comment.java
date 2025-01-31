@@ -3,6 +3,7 @@ package com.musicservice.domain.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -11,10 +12,8 @@ import java.io.Serializable;
 @Entity
 @Table(name="comments")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
 public class Comment implements Serializable {
-    public Comment() {
-    }
-
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;

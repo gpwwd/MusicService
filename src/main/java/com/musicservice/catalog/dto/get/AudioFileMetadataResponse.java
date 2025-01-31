@@ -1,4 +1,4 @@
-package com.musicservice.media.dto;
+package com.musicservice.catalog.dto.get;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -43,7 +43,6 @@ public class AuthService {
         return userMapperService.userToUserGetDto(saved);
     }
 
-    // to return userAuthResponseDto
     public String login(UserPostDto userDto) {
         Authentication authentication =
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDto.getName(), userDto.getPassword()));

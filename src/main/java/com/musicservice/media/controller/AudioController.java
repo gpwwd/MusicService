@@ -1,11 +1,9 @@
 package com.musicservice.media.controller;
 
 
-import com.musicservice.catalog.dto.post.SongPostDto;
 import com.musicservice.catalog.service.SongService;
 import com.musicservice.media.service.DefaultSongStorageServiceImpl;
 import com.musicservice.media.service.SongStorageService;
-import com.musicservice.media.dto.AudioFileMetadataResponse;
 import com.musicservice.media.util.Range;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -41,31 +34,6 @@ public class AudioController {
 
     @Value("${photon.streaming.default-chunk-size}")
     public Integer defaultChunkSize;
-
-    @Operation(
-            summary = "Upload an audio file",
-            description = "Uploads an audio file and returns its metadata",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "File to upload",
-                    required = true,
-                    content = @Content(
-                            mediaType = "multipart/form-data",
-                            schema = @Schema(type = "object", format = "binary")
-                    )
-            ),
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "File uploaded successfully",
-                            content = @Content(schema = @Schema(implementation = AudioFileMetadataResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid file upload")
-            }
-    )
-    @PostMapping
-    public ResponseEntity<AudioFileMetadataResponse> save(@RequestPart("file") MultipartFile file) {
-        UUID fileUuid = songStorageService.save(file);
-        String originalFilename = file.getOriginalFilename();
-        AudioFileMetadataResponse response = new AudioFileMetadataResponse(fileUuid, originalFilename);
-        return ResponseEntity.ok(response);
-    }
 
     @GetMapping("/{uuid}")
     public ResponseEntity<byte[]> readChunk(

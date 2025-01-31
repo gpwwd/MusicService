@@ -1,38 +1,28 @@
 package com.musicservice.catalog.controller;
 
 import com.musicservice.catalog.dto.get.CommentGetDto;
+import com.musicservice.catalog.dto.get.PostedSongResponseDto;
 import com.musicservice.catalog.dto.post.SongPostDto;
 import com.musicservice.catalog.dto.post.SongUpdateDto;
 import com.musicservice.catalog.dto.get.SongGetDto;
 import com.musicservice.catalog.service.SongService;
-import com.musicservice.media.dto.AudioFileMetadataResponse;
-import com.musicservice.media.service.DefaultSongStorageServiceImpl;
-import com.musicservice.media.service.SongStorageService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.SchemaProperty;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import com.musicservice.catalog.dto.get.AudioFileMetadataResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/songs")
 public class SongController {
     private final SongService songService;
-    private final SongStorageService songStorageService;
 
     @Autowired
-    public SongController(SongService songService,
-                          DefaultSongStorageServiceImpl songStorageService) {
+    public SongController(SongService songService) {
         this.songService = songService;
-        this.songStorageService = songStorageService;
     }
 
     @GetMapping()
@@ -63,14 +53,14 @@ public class SongController {
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 
+    @Transactional
     @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<?> postSong(
+    public ResponseEntity<PostedSongResponseDto> postSong(
             @RequestPart("songDto") SongPostDto songDto,
             @RequestPart("cover") MultipartFile cover,
             @RequestPart("audio") MultipartFile file) {
-        UUID fileUuid = songStorageService.save(file);
-        SongUpdateDto song = songService.save(songDto, cover, fileUuid);
-        return new ResponseEntity<>(song, HttpStatus.CREATED);
+        PostedSongResponseDto response = songService.saveSongWithAudioFile(songDto, cover, file);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
