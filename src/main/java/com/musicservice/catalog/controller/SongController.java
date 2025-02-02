@@ -7,6 +7,7 @@ import com.musicservice.catalog.dto.post.SongUpdateDto;
 import com.musicservice.catalog.dto.get.SongGetDto;
 import com.musicservice.catalog.service.SongService;
 import com.musicservice.catalog.dto.get.AudioFileMetadataResponse;
+import com.musicservice.elasticsearch.service.SongElasticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/songs")
 public class SongController {
     private final SongService songService;
+    private final SongElasticService songElasticService;
 
     @Autowired
-    public SongController(SongService songService) {
+    public SongController(SongService songService, SongElasticService songElasticService) {
         this.songService = songService;
+        this.songElasticService = songElasticService;
     }
 
     @GetMapping()
@@ -73,5 +76,15 @@ public class SongController {
     public ResponseEntity<?> deleteSong(@PathVariable int id) {
         songService.deleteSong(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<SongGetDto>> search(
+            @RequestParam("query") String query,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        Page<SongGetDto> songs = songElasticService.searchSongsViaElastic(query, page, size);
+        return new ResponseEntity<>(songs, HttpStatus.OK);
     }
 }
