@@ -1,11 +1,12 @@
 package com.musicservice.catalog.service;
 
 import com.musicservice.catalog.dto.get.CommentGetDto;
-import com.musicservice.catalog.dto.get.PostedSongResponseDto;
-import com.musicservice.catalog.dto.post.SongPostDto;
-import com.musicservice.catalog.dto.post.SongUpdateDto;
-import com.musicservice.catalog.dto.get.SongGetDto;
+import com.musicservice.catalog.dto.get.song.PostedSongResponseDto;
+import com.musicservice.catalog.dto.post.song.SongPostDto;
+import com.musicservice.catalog.dto.post.song.SongUpdateDto;
+import com.musicservice.catalog.dto.get.song.SongGetDto;
 import com.musicservice.domain.model.ImageInfo;
+import com.musicservice.elasticsearch.service.SongIndexingService;
 import com.musicservice.exception.AudioNotFoundException;
 import com.musicservice.exception.SongNotFoundException;
 import com.musicservice.domain.model.Comment;
@@ -38,17 +39,20 @@ public class SongService {
     private final CommentMapperService commentMapperService;
     private final AudioFileMetadataRepository audioFileMetadataRepository;
     private final SongStorageService songStorageService;
+    private final SongIndexingService songIndexingService;
 
     @Autowired
     public SongService(SongRepository songRepository, SongMapperService songMapper,
                        CommentRepository commentRepository, CommentMapperService commentMapperService,
-                       AudioFileMetadataRepository audioFileMetadataRepository, DefaultSongStorageServiceImpl songStorageService) {
+                       AudioFileMetadataRepository audioFileMetadataRepository, DefaultSongStorageServiceImpl songStorageService,
+                       SongIndexingService songIndexingService) {
         this.songRepository = songRepository;
         this.songMapper = songMapper;
         this.commentRepository = commentRepository;
         this.commentMapperService = commentMapperService;
         this.audioFileMetadataRepository = audioFileMetadataRepository;
         this.songStorageService = songStorageService;
+        this.songIndexingService = songIndexingService;
     }
 
     public Page<SongGetDto> getAll(Integer page, Integer size) {
@@ -77,7 +81,7 @@ public class SongService {
     }
 
     @Transactional
-    public PostedSongResponseDto save(SongPostDto songDto, MultipartFile cover, UUID audioMetadataId) {
+    protected PostedSongResponseDto save(SongPostDto songDto, MultipartFile cover, UUID audioMetadataId) {
         Song song = songMapper.SongPostDtoToEntity(songDto);
 
         if (!cover.isEmpty()) {
@@ -111,7 +115,9 @@ public class SongService {
         UUID fileUuid = null;
         try {
             fileUuid = songStorageService.save(file);
-            return this.save(songDto, cover, fileUuid);
+            PostedSongResponseDto songResponseDto = this.save(songDto, cover, fileUuid);
+            songIndexingService.index(songMapper.SongPostDtoToEntity(songDto));
+            return songResponseDto;
         } catch (Exception e) {
             if (fileUuid != null) {
                 songStorageService.delete(fileUuid);
@@ -131,6 +137,7 @@ public class SongService {
 
         existingSong.setTitle(songDto.getTitle());
         Song song = songRepository.save(existingSong);
+        songIndexingService.index(song);
         return songMapper.songToSongDto(song);
     }
 
@@ -141,7 +148,7 @@ public class SongService {
 
         String audioMetadataId = songToDelete.getAudioMetadata().getId();
         songStorageService.delete(UUID.fromString(audioMetadataId));
-
+        songIndexingService.removeFromIndex(id);
         songRepository.deleteById(id);
     }
 }

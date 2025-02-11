@@ -1,6 +1,6 @@
 package com.musicservice.user.service;
 
-import com.musicservice.catalog.dto.get.SongGetDto;
+import com.musicservice.catalog.dto.get.song.SongGetDto;
 import com.musicservice.user.dto.get.UserGetDto;
 import com.musicservice.user.dto.post.UserPostDto;
 import com.musicservice.exception.SongNotFoundException;

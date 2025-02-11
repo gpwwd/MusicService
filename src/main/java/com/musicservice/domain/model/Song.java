@@ -33,4 +33,16 @@ public class Song implements Serializable {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "audio_metadata_id", referencedColumnName = "id")
     private SongAudioMetadataEntity audioMetadata;
+
+    //done
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="artist_id", referencedColumnName="id", nullable=true)
+    private Artist artist;
+
+    //done
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {})
+    @JoinTable(name="song_genre",
+            joinColumns=  @JoinColumn(name="genre_id", referencedColumnName="id"),
+            inverseJoinColumns= @JoinColumn(name="song_id", referencedColumnName="id") )
+    private List<Genre> genres;
 }

@@ -1,6 +1,6 @@
 package com.musicservice.elasticsearch.service;
 
-import com.musicservice.catalog.dto.get.SongGetDto;
+import com.musicservice.catalog.dto.get.song.SongGetDto;
 import com.musicservice.catalog.mapper.SongMapperService;
 import com.musicservice.domain.model.Song;
 import com.musicservice.domain.repository.jpa.SongRepository;
@@ -21,15 +21,15 @@ import java.util.Set;
 import static java.util.Comparator.comparingInt;
 
 @Service
-public class SongElasticService {
+public class SongSearchElasticService {
 
     private final SongElasticRepository repository;
     private final SongRepository songRepository;
     private final SongMapperService songMapper;
 
     @Autowired
-    public SongElasticService(SongElasticRepository repository, SongRepository songRepository,
-                              SongMapperService songMapper) {
+    public SongSearchElasticService(SongElasticRepository repository, SongRepository songRepository,
+                                    SongMapperService songMapper) {
         this.repository = repository;
         this.songRepository = songRepository;
         this.songMapper = songMapper;

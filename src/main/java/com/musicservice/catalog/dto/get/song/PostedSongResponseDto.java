@@ -1,6 +1,5 @@
-package com.musicservice.catalog.dto.get;
+package com.musicservice.catalog.dto.get.song;
 
-import com.musicservice.catalog.dto.post.SongPostDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

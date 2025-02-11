@@ -1,13 +1,13 @@
 package com.musicservice.catalog.controller;
 
 import com.musicservice.catalog.dto.get.CommentGetDto;
-import com.musicservice.catalog.dto.get.PostedSongResponseDto;
-import com.musicservice.catalog.dto.post.SongPostDto;
-import com.musicservice.catalog.dto.post.SongUpdateDto;
-import com.musicservice.catalog.dto.get.SongGetDto;
+import com.musicservice.catalog.dto.get.song.PostedSongResponseDto;
+import com.musicservice.catalog.dto.post.song.SongPostDto;
+import com.musicservice.catalog.dto.post.song.SongUpdateDto;
+import com.musicservice.catalog.dto.get.song.SongGetDto;
 import com.musicservice.catalog.service.SongService;
 import com.musicservice.catalog.dto.get.AudioFileMetadataResponse;
-import com.musicservice.elasticsearch.service.SongElasticService;
+import com.musicservice.elasticsearch.service.SongSearchElasticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -20,12 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/songs")
 public class SongController {
     private final SongService songService;
-    private final SongElasticService songElasticService;
+    private final SongSearchElasticService songSearchElasticService;
 
     @Autowired
-    public SongController(SongService songService, SongElasticService songElasticService) {
+    public SongController(SongService songService, SongSearchElasticService songSearchElasticService) {
         this.songService = songService;
-        this.songElasticService = songElasticService;
+        this.songSearchElasticService = songSearchElasticService;
     }
 
     @GetMapping()
@@ -84,7 +84,7 @@ public class SongController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
-        Page<SongGetDto> songs = songElasticService.searchSongsViaElastic(query, page, size);
+        Page<SongGetDto> songs = songSearchElasticService.searchSongsViaElastic(query, page, size);
         return new ResponseEntity<>(songs, HttpStatus.OK);
     }
 }

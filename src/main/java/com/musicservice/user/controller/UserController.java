@@ -1,20 +1,13 @@
 package com.musicservice.user.controller;
 
-import com.musicservice.catalog.dto.get.SongGetDto;
+import com.musicservice.catalog.dto.get.song.SongGetDto;
 import com.musicservice.user.dto.get.UserGetDto;
-import com.musicservice.user.dto.post.UserPostDto;
-import com.musicservice.exception.CustomValidationException;
 import com.musicservice.user.service.UserService;
-import com.musicservice.user.util.UserValidator;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")

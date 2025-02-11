@@ -1,4 +1,4 @@
-package com.musicservice.catalog.dto.post;
+package com.musicservice.catalog.dto.post.song;
 
 import lombok.Getter;
 import lombok.Setter;

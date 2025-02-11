@@ -1,12 +1,10 @@
 package com.musicservice.catalog.mapper;
 
-import com.musicservice.catalog.dto.post.SongPostDto;
-import com.musicservice.catalog.dto.post.SongUpdateDto;
-import com.musicservice.catalog.dto.get.SongGetDto;
+import com.musicservice.catalog.dto.post.song.SongPostDto;
+import com.musicservice.catalog.dto.post.song.SongUpdateDto;
+import com.musicservice.catalog.dto.get.song.SongGetDto;
 import com.musicservice.domain.model.Song;
 import org.mapstruct.Mapper;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface SongMapperService {

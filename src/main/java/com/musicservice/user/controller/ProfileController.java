@@ -1,6 +1,6 @@
 package com.musicservice.user.controller;
 
-import com.musicservice.catalog.dto.get.SongGetDto;
+import com.musicservice.catalog.dto.get.song.SongGetDto;
 import com.musicservice.security.util.UserPrincipal;
 import com.musicservice.user.dto.get.UserGetDto;
 import com.musicservice.user.dto.post.UserPostDto;
