@@ -5,10 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 public class ArtistPostDto {
     private String name;
     private String description;
-    private List<Long> genresIds;
+    private Set<String> genres;
 }

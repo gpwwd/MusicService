@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 @Entity
@@ -22,11 +23,11 @@ public class Artist {
     private String description;
 
     //done
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {})
-    @JoinTable(name="artist_genre",
-            joinColumns=  @JoinColumn(name="genre_id", referencedColumnName="id"),
-            inverseJoinColumns= @JoinColumn(name="artist_id", referencedColumnName="id") )
-    private List<Genre> genres;
+    @ElementCollection(targetClass = Genre.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "artist_genre", joinColumns = @JoinColumn(name = "artist_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "genre")
+    private Set<Genre> genres;
 
     //done
     @OneToMany(mappedBy="artist", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=false)

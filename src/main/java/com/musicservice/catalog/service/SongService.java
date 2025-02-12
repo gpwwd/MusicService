@@ -5,13 +5,12 @@ import com.musicservice.catalog.dto.get.song.PostedSongResponseDto;
 import com.musicservice.catalog.dto.post.song.SongPostDto;
 import com.musicservice.catalog.dto.post.song.SongUpdateDto;
 import com.musicservice.catalog.dto.get.song.SongGetDto;
-import com.musicservice.domain.model.ImageInfo;
+import com.musicservice.domain.model.*;
+import com.musicservice.domain.repository.jpa.ArtistRepository;
 import com.musicservice.elasticsearch.service.SongIndexingService;
 import com.musicservice.exception.AudioNotFoundException;
+import com.musicservice.exception.BadRequestException;
 import com.musicservice.exception.SongNotFoundException;
-import com.musicservice.domain.model.Comment;
-import com.musicservice.domain.model.Song;
-import com.musicservice.domain.model.SongAudioMetadataEntity;
 import com.musicservice.domain.repository.jpa.AudioFileMetadataRepository;
 import com.musicservice.domain.repository.jpa.CommentRepository;
 import com.musicservice.domain.repository.jpa.SongRepository;
@@ -40,12 +39,13 @@ public class SongService {
     private final AudioFileMetadataRepository audioFileMetadataRepository;
     private final SongStorageService songStorageService;
     private final SongIndexingService songIndexingService;
+    private final ArtistRepository artistRepository;
 
     @Autowired
     public SongService(SongRepository songRepository, SongMapperService songMapper,
                        CommentRepository commentRepository, CommentMapperService commentMapperService,
                        AudioFileMetadataRepository audioFileMetadataRepository, DefaultSongStorageServiceImpl songStorageService,
-                       SongIndexingService songIndexingService) {
+                       SongIndexingService songIndexingService, ArtistRepository artistRepository) {
         this.songRepository = songRepository;
         this.songMapper = songMapper;
         this.commentRepository = commentRepository;
@@ -53,6 +53,7 @@ public class SongService {
         this.audioFileMetadataRepository = audioFileMetadataRepository;
         this.songStorageService = songStorageService;
         this.songIndexingService = songIndexingService;
+        this.artistRepository = artistRepository;
     }
 
     public Page<SongGetDto> getAll(Integer page, Integer size) {
@@ -98,6 +99,10 @@ public class SongService {
 
         song.setAudioMetadata(audioMetadata);
         audioMetadata.setSong(song);
+
+        Artist artist = artistRepository.findById(songDto.getArtistId())
+                .orElseThrow(() -> new BadRequestException("Artist with id " + songDto.getArtistId() + " not found"));
+        song.setArtist(artist);
 
         Song saved = songRepository.save(song);
 

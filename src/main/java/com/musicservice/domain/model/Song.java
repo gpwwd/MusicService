@@ -5,6 +5,7 @@ import lombok.Setter;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 @Entity
@@ -40,9 +41,9 @@ public class Song implements Serializable {
     private Artist artist;
 
     //done
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {})
-    @JoinTable(name="song_genre",
-            joinColumns=  @JoinColumn(name="genre_id", referencedColumnName="id"),
-            inverseJoinColumns= @JoinColumn(name="song_id", referencedColumnName="id") )
-    private List<Genre> genres;
+    @ElementCollection(targetClass = Genre.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "song_genre", joinColumns = @JoinColumn(name = "song_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "genre")
+    private Set<Genre> genres;
 }

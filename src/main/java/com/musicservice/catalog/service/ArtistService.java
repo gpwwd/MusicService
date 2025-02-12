@@ -7,13 +7,15 @@ import com.musicservice.domain.model.Artist;
 import com.musicservice.domain.model.Genre;
 import com.musicservice.domain.model.User;
 import com.musicservice.domain.repository.jpa.ArtistRepository;
-import com.musicservice.domain.repository.jpa.GenreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,24 +23,37 @@ public class ArtistService {
 
     private final ArtistRepository artistRepository;
     private final ArtistMapperService artistMapperService;
-    private final GenreRepository genreRepository;
 
     @Autowired
-    public ArtistService(ArtistRepository artistRepository, ArtistMapperService artistMapperService, GenreRepository genreRepository) {
+    public ArtistService(ArtistRepository artistRepository, ArtistMapperService artistMapperService) {
         this.artistRepository = artistRepository;
         this.artistMapperService = artistMapperService;
-        this.genreRepository = genreRepository;
     }
 
     @Transactional
     public ArtistGetDto save(ArtistPostDto artistDto) {
         Artist artist = artistMapperService.artistPostDtoToEntity(artistDto);
-        List<Genre> genres = genreRepository.findAllById(artistDto.getGenresIds());
-        if (genres.size() != artistDto.getGenresIds().size()) {
-            throw new RuntimeException("One or more genre IDs are invalid.");
-        }
+        Set<Genre> genres = validateGenres(artistDto.getGenres());
         artist.setGenres(genres);
-        Artist saved = artistRepository.save(artist);
-        return artistMapperService.entityToArtistGetDto(saved);
+        Artist savedArtist = artistRepository.save(artist);
+        return artistMapperService.entityToArtistGetDto(savedArtist);
     }
+
+    // перенести в кастомный валидатор в контроллер
+    private Set<Genre> validateGenres(Set<String> genres) {
+        EnumSet<Genre> validGenres = EnumSet.allOf(Genre.class);
+
+        return genres.stream()
+                .map(genreString -> {
+                    try {
+                        return Genre.valueOf(genreString);
+                    } catch (IllegalArgumentException e) {
+                        throw new RuntimeException("Invalid genre: " + genreString);
+                    }
+                })
+                .filter(validGenres::contains)
+                .collect(Collectors.toSet());
+    }
+
+
 }

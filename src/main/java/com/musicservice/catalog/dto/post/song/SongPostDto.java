@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class SongPostDto {
     private String title;
+    private Long artistId;
 }
